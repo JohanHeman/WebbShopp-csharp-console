@@ -5,27 +5,62 @@ using System.Text;
 using System.Threading.Tasks;
 using WindowDemo;
 
-namespace Webbshopp
+namespace Webbshop
 {
     internal class Menu
     {
         public enum HomeEnums
         {
             Customer_menu = 1,
-            Admin
+            Admin_menu
         }
 
         public enum customerEnums
         {
-            home_page = 1,
-            shopp,
-            checkout
+            Shop = 1,
+            Checkout,
+            Home_page,
         }
 
+        public enum adminEnums
+        {
+            Product_management = 1,
+            Product_categories,
+            Customer_management,
+            Statistics,
+            Home_page
+        }
+
+        public enum productEnums
+        {
+            Add_product = 1,
+            Delete_product,
+            Update_product,
+            Home_page
+        }
+
+        public enum categoryEnums
+        {
+            Adventure = 1,
+            Fantasy,
+            Mystery,
+            Thriller,
+            History,
+            Self_help
+        }
+
+        public enum adminCustomerEnums
+        {
+            // no add customer here, because the customers are added when they are doing their orders. 
+            // what infor should admin be able to edit for the customer ? 
+            Change_customer_info = 1,
+            Order_history
+        }
+            
         public static void StartMenu()
         {
             // later in this the names of the books will be from the database, isDeal= true
-
+            Console.Clear();
             List<string> welcomeText = new List<string> { "Welcome to the Book store. ", "We provide books" };
 
             Window windowStart = new Window("The Book Shop", 37, 0, welcomeText);
@@ -48,9 +83,6 @@ namespace Webbshopp
             var menuWindow = new Window("Menu", 2, 0, menuChoices);
             menuWindow.Draw();
 
-            // make a switch statement that also handles errors for the enum menu 
-
-
             ConsoleKeyInfo key = Console.ReadKey(true);
             if(int.TryParse(key.KeyChar.ToString(), out int input))
             {
@@ -59,6 +91,10 @@ namespace Webbshopp
                     case HomeEnums.Customer_menu:
                         CustomerMenu();
                         break;
+                    case HomeEnums.Admin_menu:
+                        AdminMenu();
+                        break;
+
                 }
             }
         }
@@ -70,7 +106,79 @@ namespace Webbshopp
 
             var window = new Window("CustomerMenu", 2, 0, customerChoices);
             window.Draw();
-            
+
+            ConsoleKeyInfo key = Console.ReadKey(true);
+
+            if(int.TryParse(key.KeyChar.ToString(), out int input))
+            {
+                switch((customerEnums)input)
+                {
+                    case customerEnums.Home_page:
+                        StartMenu();
+                        break;
+                }
+            }
+        }
+
+        public static void AdminMenu()
+        {
+            Console.Clear();
+            List<string> adminChoices = Helpers.EnumsToLists(typeof(adminEnums));
+
+            var window = new Window("AdminMenu", 2, 0, adminChoices);
+            window.Draw();
+
+            ConsoleKeyInfo key = Console.ReadKey(true);
+            if(int.TryParse(key.KeyChar.ToString(), out int input))
+            {
+                switch((adminEnums) input)
+                {
+                    case adminEnums.Product_management:
+                        ProductAdmin();
+                        break;
+                    case adminEnums.Product_categories:
+                        ProductCategories();
+                        break;
+
+                    case adminEnums.Customer_management:
+                        AdminCustomer();
+                        break;
+                    case adminEnums.Home_page:
+                        StartMenu();
+                        break;
+                }
+            }
+        }
+        public static void ProductAdmin()
+        {
+            Console.Clear();
+            List<string> productList = Helpers.EnumsToLists(typeof(productEnums));
+
+            var window = new Window("AdminMenu", 2, 0, productList);
+            window.Draw();
+        }
+
+
+        public static void ProductCategories()
+        {
+            Console.Clear();
+            List<string> categoryList = Helpers.EnumsToLists(typeof(categoryEnums));
+
+            var window = new Window("AdminMenu", 2, 0, categoryList);
+            window.Draw();
+        }
+
+        public static void AdminCustomer()
+        {
+            Console.Clear();
+            List<string> productList = Helpers.EnumsToLists(typeof(adminCustomerEnums));
+            var window = new Window("AdminMenu", 2, 0, productList);
+            window.Draw();
+        }
+
+        public static void AdminStatistics()
+        {
+            // show statistics for admin, querries etc
         }
     }
 }

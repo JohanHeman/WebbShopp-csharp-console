@@ -1,4 +1,4 @@
 <Solution>
   <Project Path="../../../../../../OneDrive/Skrivbord/WindowDemo/WindowDemo/WindowDemo/WindowDemo.csproj" />
-  <Project Path="../../../../../../source/repos/Nykoping/ProTwo/Webbshopp/Webbshopp/Webbshopp/Webbshopp.csproj" />
+  <Project Path="Webbshopp/Webbshop.csproj" />
 </Solution>

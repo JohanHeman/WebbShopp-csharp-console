@@ -1,6 +1,6 @@
 ﻿using WindowDemo;
 
-namespace Webbshopp
+namespace Webbshop
 {
     internal class Program
     {
