@@ -14,13 +14,15 @@ namespace Webbshop
 
             if(!e.IsEnum)
             {
-                Console.WriteLine("This was not an enum, so the function wont work with this parameter type.");
+                throw new ArgumentException("The function expects an enum type!");
             }
 
             var enumValues = Enum.GetValues(e);
             
             foreach ( var value in enumValues )
             {
+                string name = value.ToString().Replace("_", " ");
+
                 theList.Add((int)value + ": " + value.ToString());
             }
             return theList;   
