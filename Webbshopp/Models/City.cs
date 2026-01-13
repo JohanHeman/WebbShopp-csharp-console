@@ -11,6 +11,6 @@ namespace Webbshop.Models
         public int Id { get; set; }
         public string Name { get; set; }
         public int CountryId { get; set; }
-        public ICollection<Adress> Adresses { get; set; } = new List<Adress>();
+        public ICollection<Address> Adresses { get; set; } = new List<Address>();
     }
 }

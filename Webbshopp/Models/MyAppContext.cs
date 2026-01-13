@@ -23,5 +23,10 @@ namespace Webbshop.Models
         public DbSet<ShippingMethod> ShippingMethods { get; set; }
         public DbSet<Supplier> Suppliers { get; set; }
 
+
+        protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+        {
+            optionsBuilder.UseSqlServer("Server=JOHANPC;Database=Webbshopp;Trusted_Connection=True;TrustServerCertificate=true");
+        }
     }
 }

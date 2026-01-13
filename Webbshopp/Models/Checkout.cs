@@ -14,7 +14,7 @@ namespace Webbshop.Models
         //fk and pointers
         public int ShippingMethodId { get; set; }
         public int AdressId { get; set; }
-        public Adress Adress { get; set; }
+        public Address Adress { get; set; }
         public ShippingMethod ShippingMethod { get; set; }
         public Payment? Payment { get; set; } // navigation for payment one to one relationship
         public ICollection<CheckoutProduct> CheckoutProducts { get; set; } = new List<CheckoutProduct>();

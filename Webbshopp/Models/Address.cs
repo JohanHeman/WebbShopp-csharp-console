@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Webbshop.Models
 {
-    internal class Adress
+    internal class Address
     {
         public int Id { get; set; }
         public string Street { get; set; }

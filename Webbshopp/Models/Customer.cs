@@ -13,6 +13,6 @@ namespace Webbshop.Models
         public string PhoneNumber { get; set; }
         public string Email { get; set; }
         public int Age { get; set; }
-        public ICollection<Adress> Adresses { get; set; } = new List<Adress>();
+        public ICollection<Address> Adresses { get; set; } = new List<Address>();
     }
 }
