@@ -44,8 +44,6 @@ namespace Webbshop
             Adventure = 1,
             Fantasy,
             Mystery,
-            Thriller,
-            History,
             Self_help
         }
 

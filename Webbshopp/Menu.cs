@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Webbshop.Models;
 using WindowDemo;
 
 namespace Webbshop
@@ -191,12 +192,18 @@ namespace Webbshop
         public static void ProductCategories()
         {
             Console.Clear();
-            List<string> categoryList = Helpers.EnumsToLists(typeof(Enums.categoryEnums));
+           
+            using(var db = new MyAppContext())
+            {
 
-            var window = new Window("AdminMenu", 2, 0, categoryList); // Do a querry to get all these from the database instead, and delete the enum from enum class.
-            window.Draw();
+                List<Category> categoryList = db.Categories.ToList(); 
 
-            Console.ReadKey(true);
+                foreach (var category in categoryList)
+                {
+                    Console.WriteLine($"{category.Id}: {category.Name}");
+                }
+                Console.ReadKey(true);
+            }
         }
 
 
