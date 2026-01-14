@@ -11,17 +11,12 @@ namespace Webbshop
     {
         public static void ShowCategories(List<Category> categories)
         {
-            Console.Clear();
-            using(var db = new MyAppContext())
-            {
-                categories = db.Categories.ToList();
+                Console.Clear();
 
                 foreach (var c in categories)
                 {
                     Console.WriteLine($"{c.Id}: {c.Name}");
                 }
-            }
         }
-
     }
 }

@@ -121,12 +121,7 @@ namespace Webbshop
                 }
             }
 
-
-
         }
-
-
-
 
         public static void AdminMenu()
         {
@@ -210,8 +205,15 @@ namespace Webbshop
             Console.Clear();
            using(var db = new MyAppContext())
             {
-                List<Category> categories = db.Categories.ToList();
-                Queries.ShowCategories(categories);
+                List<Category> categories = DapperQueries.GetCategories();
+
+                Console.Clear();
+
+                foreach (var c in categories)
+                {
+                    Console.WriteLine($"{c.Id}: {c.Name}");
+                }
+
                 // take input here and use switch statements to call different functions
                 Console.ReadKey();
             }
@@ -223,8 +225,14 @@ namespace Webbshop
 
             using(var db = new MyAppContext())
             {
-                var categories = db.Categories.ToList();
-                Queries.ShowCategories(categories); // this function just displays the items in the list 
+                List<Category> categories = DapperQueries.GetCategories(); // gets the items from dapper querry into a list 
+
+                Console.Clear();
+
+                foreach (var c in categories)
+                {
+                    Console.WriteLine($"{c.Id}: {c.Name}");
+                }
 
                 // use switch statement for cases here 
                 Console.ReadKey();
