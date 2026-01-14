@@ -47,6 +47,7 @@ namespace Webbshop
 
                 var menuWindow = new Window("Menu", 2, 0, menuChoices);
                 menuWindow.Draw();
+                Console.WriteLine("Press 'q' to quit");
 
                 ConsoleKeyInfo key = Console.ReadKey(true);
 
@@ -77,6 +78,7 @@ namespace Webbshop
                         Console.ReadKey(true);
                     }
                 }
+
             }
             Console.Clear();
             Console.WriteLine("Thank you for visiting. Please come again!");
@@ -143,7 +145,7 @@ namespace Webbshop
                             ProductAdmin();
                             break;
                         case Enums.adminEnums.Product_categories:
-                            ProductCategories();
+                            ProductCategories(); // do this again but make a querry to get all the categories into a list and show them from the database instead
                             break;
 
                         case Enums.adminEnums.Customer_management:
@@ -191,7 +193,7 @@ namespace Webbshop
             Console.Clear();
             List<string> categoryList = Helpers.EnumsToLists(typeof(Enums.categoryEnums));
 
-            var window = new Window("AdminMenu", 2, 0, categoryList); // admin will be able to filter bu categories when looking for items.
+            var window = new Window("AdminMenu", 2, 0, categoryList); // Do a querry to get all these from the database instead, and delete the enum from enum class.
             window.Draw();
 
             Console.ReadKey(true);

@@ -16,9 +16,13 @@ namespace Webbshop.Models
         public string Information { get; set; }
         public bool IsDisplayed { get; set; }
         public int CategoryId { get; set; }
-        public int SupplierId { get; set; }
         public Category Category { get; set; }
+        public int SupplierId { get; set; }
         public Supplier Supplier { get; set; }
+        public int AuthorId { get; set; }
+        public Author Author { get; set; }
+
+
 
         public ICollection<CheckoutProduct> CheckoutProducts { get; set; } = new List<CheckoutProduct>();
 
