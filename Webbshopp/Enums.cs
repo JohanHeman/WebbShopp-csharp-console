@@ -39,19 +39,11 @@ namespace Webbshop
             Home
         }
 
-        public enum categoryEnums
-        {
-            Adventure = 1,
-            Fantasy,
-            Mystery,
-            Self_help
-        }
-
         public enum shopEnums
         {
             Search = 1,
             Categories,
-            Home
+            Back
         }
 
 

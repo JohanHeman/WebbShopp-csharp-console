@@ -107,6 +107,7 @@ namespace Webbshop
                             Thread.Sleep(1000);
                             return;
                         case Enums.customerEnums.Shop:
+                            ShopMenu();
                             break;
                     }
                 }
@@ -146,7 +147,7 @@ namespace Webbshop
                             ProductAdmin();
                             break;
                         case Enums.adminEnums.Product_categories:
-                            ProductCategories(); // do this again but make a querry to get all the categories into a list and show them from the database instead
+                            AdminCategories();
                             break;
 
                         case Enums.adminEnums.Customer_management:
@@ -188,27 +189,6 @@ namespace Webbshop
 
 
 
-
-        public static void ProductCategories()
-        {
-            Console.Clear();
-           
-            using(var db = new MyAppContext())
-            {
-
-                List<Category> categoryList = db.Categories.ToList(); 
-
-                foreach (var category in categoryList)
-                {
-                    Console.WriteLine($"{category.Id}: {category.Name}");
-                }
-                Console.ReadKey(true);
-            }
-        }
-
-
-
-
         public static void AdminCustomer()
         {
             Console.Clear();
@@ -225,18 +205,30 @@ namespace Webbshop
             // show statistics for admin, querries etc
         }
 
-
-
-
         public static void CustomerCategories()
         {
             Console.Clear();
-            List<string> categoryList = Helpers.EnumsToLists(typeof(Enums.categoryEnums));
+           using(var db = new MyAppContext())
+            {
+                List<Category> categories = db.Categories.ToList();
+                Queries.ShowCategories(categories);
+                // take input here and use switch statements to call different functions
+                Console.ReadKey();
+            }
+        }
 
-            var window = new Window("Categories", 2, 0, categoryList);
-            window.Draw();
+        public static void AdminCategories()
+        {
+            Console.Clear();
 
-            // take input and do querries for categories based on the input.
+            using(var db = new MyAppContext())
+            {
+                var categories = db.Categories.ToList();
+                Queries.ShowCategories(categories); // this function just displays the items in the list 
+
+                // use switch statement for cases here 
+                Console.ReadKey();
+            }
         }
 
 
@@ -244,27 +236,38 @@ namespace Webbshop
 
         public static void ShopMenu()
         {
-            Console.Clear();
-            List<string> shopList = Helpers.EnumsToLists(typeof(Enums.shopEnums));
-
-            var window = new Window("Shop",2, 0, shopList);
-
-            window.Draw();
-
-            ConsoleKeyInfo key = Console.ReadKey(true);
-
-            if(int.TryParse(key.KeyChar.ToString(), out int input))
+            while(true)
             {
-                switch ((Enums.shopEnums)input)
+                Console.Clear();
+                List<string> shopList = Helpers.EnumsToLists(typeof(Enums.shopEnums));
+
+                var window = new Window("Shop", 2, 0, shopList);
+
+                window.Draw();
+
+                ConsoleKeyInfo key = Console.ReadKey(true);
+
+                if (int.TryParse(key.KeyChar.ToString(), out int input))
                 {
-                    case Enums.shopEnums.Categories:
-                        CustomerCategories(); 
-                        break;
-                    case Enums.shopEnums.Home:
-                        StartMenu();
-                        break;
+                    switch ((Enums.shopEnums)input)
+                    {
+                        case Enums.shopEnums.Categories:
+                            CustomerCategories();
+                            break;
+                        case Enums.shopEnums.Back:
+                            return;
+                    }
+                }
+                else
+                {
+                    Console.Clear();
+                    Console.WriteLine("Not a valid input please try again");
+                    Console.WriteLine("Press any key to go back");
+
+                    Console.ReadKey(true);
                 }
             }
+
         }
 
 
