@@ -54,6 +54,5 @@ namespace Webbshop
             Change_customer_info = 1,
             Order_history
         }
-
     }
 }

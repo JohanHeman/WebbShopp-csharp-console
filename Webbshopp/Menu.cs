@@ -296,8 +296,10 @@ namespace Webbshop
                     Console.ReadKey(true);
                 }
             }
-
         }
+
+        // cart menu in queries.
+
 
     }
 }

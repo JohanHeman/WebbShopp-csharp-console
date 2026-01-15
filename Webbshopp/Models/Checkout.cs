@@ -10,9 +10,8 @@ namespace Webbshop.Models
     {
         public int Id { get; set; }
         public decimal TotalAmount { get; set; }
-
-        //fk and pointers
         public int ShippingMethodId { get; set; }
+        public bool IsPaid { get; set; }
         public int AdressId { get; set; }
         public Address Adress { get; set; }
         public ShippingMethod ShippingMethod { get; set; }
