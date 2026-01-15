@@ -211,11 +211,10 @@ namespace Webbshop
                 Console.Clear();
 
                 List<string> windowList = new List<string>();
-                int i = 1;
+
                 foreach (var c in categories)
                 {
-                    windowList.Add( i + ": " + c.Name);
-                    i++;
+                    windowList.Add( c.Id + ": " + c.Name);
                 }
 
                 var window = new Window("Categories", 1, 0, windowList);
@@ -299,10 +298,6 @@ namespace Webbshop
             }
 
         }
-
-
-
-
 
     }
 }

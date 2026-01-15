@@ -22,28 +22,59 @@ namespace Webbshop
 
                 if(getBooks.Count > 0)
                 {
-                    List<string> Books = new List<string>();
+                    List<string> books = new List<string>();
 
-                    string name = getBooks.First().Category.Name;
-                    int i = 1;
+                    string categoryName = getBooks.First().Category.Name;
 
                     foreach(var b in getBooks)
                     {
-                        Books.Add( i + ": " + b.Name);
-                        i++;
+                        books.Add( b.Id + ": " + b.Name);
                     }
 
-                    var window = new Window(name, 1, 1, Books);
+                    var window = new Window(categoryName, 1, 1, books);
                     window.Draw();
+
+                    
+
+                    if(int.TryParse(Console.ReadLine(), out int input))
+                    {
+                        if(getBooks.Any(p => p.Id == input))
+                        {
+                            InfoBook(input);
+                        }
+                        else
+                        {
+                            Console.WriteLine("No book with that id");
+                        }
+                    }
+                    
                 }
                 else
                 {
                     Console.WriteLine("There is no books with that category.");
                 }
             }
-
             Console.ReadKey();
+        }
 
+        public static void InfoBook(int id)
+        {
+            Console.Clear();
+            using(var db = new MyAppContext())
+            {
+                var book = db.Products.Where(b => b.Id == id).FirstOrDefault();
+                
+                if(book != null)
+                {
+                    List<string> bookWindow = new List<string> { book.Information , book.Price.ToString() + "$"}
+;                   var window = new Window(book.Name, 1, 1, bookWindow);
+                    window.Draw();
+                }
+                else
+                {
+                    Console.WriteLine("No book with that id found.");
+                }
+            }
         }
     }
 }
