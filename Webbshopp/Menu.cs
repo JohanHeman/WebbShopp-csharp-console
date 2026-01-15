@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Microsoft.EntityFrameworkCore;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -29,7 +30,7 @@ namespace Webbshop
                     Console.Clear();
                 List<string> welcomeText = new List<string> { "Welcome to the Book store. ", "We provide books" };
 
-                Window windowStart = new Window("The Book Shop", 37, 0, welcomeText);
+                var windowStart = new Window("The Book Shop", 37, 0, welcomeText);
                 windowStart.Draw();
 
                 List<string> dealOne = new List<string> { "Book name 1", "Author", "Press p to purchase" };
@@ -209,14 +210,35 @@ namespace Webbshop
 
                 Console.Clear();
 
+                List<string> windowList = new List<string>();
+                int i = 1;
                 foreach (var c in categories)
                 {
-                    Console.WriteLine($"{c.Id}: {c.Name}");
+                    windowList.Add( i + ": " + c.Name);
+                    i++;
                 }
 
-                // take input here and use switch statements to call different functions
-                Console.ReadKey();
+                var window = new Window("Categories", 1, 0, windowList);
+                window.Draw();
+
+
+                ConsoleKeyInfo key = Console.ReadKey(true);
+
+                if(int.TryParse(key.KeyChar.ToString(), out int input))
+                {
+                    if(categories.Any(c => c.Id == input))
+                    {
+                        Queries.ShowCategory(input);
+                    }
+                    else
+                    {
+                        Console.WriteLine("No category with that Id.");
+                    }
+                }
+                
             }
+
+            
         }
 
         public static void AdminCategories()
