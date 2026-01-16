@@ -17,9 +17,9 @@ namespace Webbshop
             string connectionString = "data source=JohanPC; initial catalog=Webbshopp; Integrated Security=True; TrustServerCertificate=True;";
             SqlConnection connection = new SqlConnection(connectionString);
 
-            string getItems = "SELECT * FROM Categories";
+            string sql = "SELECT * FROM Categories";
 
-            return connection.Query<Category>(getItems).ToList();
+            return connection.Query<Category>(sql).ToList();
         }
     }
 }
