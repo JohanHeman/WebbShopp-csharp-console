@@ -24,6 +24,10 @@ namespace Webbshop.Models
         public DbSet<Supplier> Suppliers { get; set; }
         public DbSet<Author> Authors { get; set; }
 
+        public DbSet<Cart> Carts { get; set; }
+
+        public DbSet<CartProduct> CartProducts { get; set; }
+
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {

@@ -110,6 +110,9 @@ namespace Webbshop
                         case Enums.customerEnums.Shop:
                             ShopMenu();
                             break;
+                        case Enums.customerEnums.Shoppingcart:
+                            Queries.ShowCart();
+                            break;
                     }
                 }
                 else
@@ -285,6 +288,7 @@ namespace Webbshop
                             break;
                         case Enums.shopEnums.Back:
                             return;
+
                     }
                 }
                 else

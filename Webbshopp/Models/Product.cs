@@ -25,6 +25,7 @@ namespace Webbshop.Models
 
 
         public ICollection<CheckoutProduct> CheckoutProducts { get; set; } = new List<CheckoutProduct>();
+        public ICollection<CartProduct> CartProducts { get; set; } = new List<CartProduct>();
 
     }
 }
