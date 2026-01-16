@@ -105,71 +105,69 @@ namespace Webbshop
 
         public static void AddToCart(MyAppContext db, Product product)
         {
-
-            
-
-            if(product.InStock > 0)
+            if (product.InStock <= 0)
             {
-                try
+                Console.WriteLine("This product is out of stock.");
+                return;
+            }
+
+            var checkCart = db.Carts.Include(c => c.CartProducts).FirstOrDefault(c => !c.IsCheckedOut);
+
+            if (checkCart != null)
+            {
+                var cartProduct = checkCart.CartProducts.FirstOrDefault(cp => cp.ProductId == product.Id);
+
+                if (cartProduct != null)
                 {
-                    var checkCart = db.Carts.Include(c => c.CartProducts).FirstOrDefault(c => !c.IsCheckedOut);
-
-                    if (checkCart != null)
-                    {
-                        var cartProduct = checkCart.CartProducts.FirstOrDefault(cp => cp.ProductId == product.Id);
-
-                        if (cartProduct != null)
-                        {
-
-                            cartProduct.Quantity++;
-                        }
-                        else
-                        {
-
-                            checkCart.CartProducts.Add(new CartProduct
-                            {
-                                ProductId = product.Id,
-                                Quantity = 1
-                            });
-
-
-                        }
-                        checkCart.TotalAmount += product.Price;
-                        product.InStock--;
-                        db.SaveChanges();
-                        Console.Clear();
-                        Console.WriteLine("Succesfully added item to cart");
-                        Console.ReadLine();
-                    }
-                    else
-                    {
-                        checkCart = new Cart();
-                        db.Carts.Add(checkCart);
-                        checkCart.TotalAmount += product.Price;
-                        product.InStock--;
-
-                        db.SaveChanges();
-
-                        checkCart.CartProducts.Add(new CartProduct
-                        {
-                            ProductId = product.Id,
-                            Quantity = 1
-                        });
-
-                        db.SaveChanges();
-                        Console.Clear();
-                        Console.WriteLine("Succesfully added item to cart");
-                        Console.ReadLine();
-                    }
+                    cartProduct.Quantity++;
                 }
-                catch (Exception e)
+                else
+                {
+                    checkCart.CartProducts.Add(new CartProduct
+                    {
+                        ProductId = product.Id,
+                        Quantity = 1
+                    });
+                }
+                 try
+                {
+                    checkCart.TotalAmount += product.Price;
+                    product.InStock--;
+                    db.SaveChanges();
+                    Console.Clear();
+                    Console.WriteLine("Succesfully added item to cart");
+                    Console.ReadLine();
+                }
+                catch(Exception e)
                 {
                     Console.WriteLine(e.Message);
                 }
-            }
+
+                }
             else
-            {
-                Console.WriteLine("This product is out of stock.");
+                {
+
+                checkCart = new Cart();
+                db.Carts.Add(checkCart);
+                checkCart.TotalAmount += product.Price;
+                product.InStock--;
+
+                checkCart.CartProducts.Add(new CartProduct
+                {
+                    ProductId = product.Id,
+                    Quantity = 1
+                });
+                try
+                {
+                    db.SaveChanges();
+                    Console.Clear();
+                    Console.WriteLine("Succesfully added item to cart");
+                    Console.ReadLine();
+                }
+                catch(Exception e)
+                {
+                    Console.WriteLine(e.Message);
+                }
             }
         }
 
