@@ -140,7 +140,7 @@ namespace Webbshop
                 }
                 catch(Exception e)
                 {
-                    Console.WriteLine(e.Message);
+                    Console.WriteLine("Something went wrong \n" + e.Message);
                 }
 
                 }
@@ -166,7 +166,7 @@ namespace Webbshop
                 }
                 catch(Exception e)
                 {
-                    Console.WriteLine(e.Message);
+                    Console.WriteLine("Something went wrong \n" + e.Message);
                 }
             }
         }
@@ -255,34 +255,6 @@ namespace Webbshop
                 Console.Clear();
                 Console.WriteLine("Something went wrong...");
             }
-        }
-
-
-        public static void UpdateCartMenu(MyAppContext db, int id)
-        {
-            Console.Clear();
-            var cart = db.Carts.FirstOrDefault(c => c.Id == id);
-
-            if(cart != null)
-            {
-                Console.WriteLine("What would you like to do ? ");
-                Console.WriteLine("1. Update quantity \n2. Delete product from cart");
-
-                ConsoleKeyInfo key = Console.ReadKey(true);
-
-                if(int.TryParse(key.KeyChar.ToString(), out int input))
-                {
-                    switch(input)
-                    {
-                        case 1:
-                            UpdateCart(db, cart.Id);
-                            break;
-                    }
-                }
-
-            }
-
-            Console.ReadKey(true);
         }
 
         public static void UpdateCart(MyAppContext db, int id)
@@ -396,3 +368,13 @@ namespace Webbshop
         }
     }
 }
+
+
+
+
+
+// focus today 
+// add function for searchibng for items, finish all the customer functions and prepare for admin functions 
+// CHECK ALL TRY CATCHES AND SUROUND THEM IN MINIMAL BLOCKS IMPORTANT
+
+
