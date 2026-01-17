@@ -288,6 +288,10 @@ namespace Webbshop
                             break;
                         case Enums.shopEnums.Back:
                             return;
+                        case Enums.shopEnums.Search:
+                            Queries.SearchBooks();
+                            break;
+
 
                     }
                 }

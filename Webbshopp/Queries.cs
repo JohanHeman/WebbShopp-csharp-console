@@ -1,6 +1,8 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Metadata.Conventions;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Microsoft.Identity.Client;
+using Microsoft.IdentityModel.Tokens;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -315,8 +317,6 @@ namespace Webbshop
 
         public static void UpdateCartItem(MyAppContext db , CartProduct currentProduct)
         {
-
-            
             Console.Clear();
             Console.WriteLine("Current quantity: " + currentProduct.Quantity);
 
@@ -366,8 +366,36 @@ namespace Webbshop
             Console.WriteLine("Succesfully deleted item from cart");
             Console.ReadKey(true);
         }
+
+
+        public static void SearchBooks()
+        {
+            Console.Clear();
+            List<Product> books = DapperQueries.GetBooks();
+            Console.WriteLine("Searching...");
+            Thread.Sleep(1000);
+            Console.Clear();
+
+
+            if(books != null && books.Count > 0)
+            {
+                foreach (var b in books)
+                {
+                    Console.WriteLine($"{b.Id}: {b.Name}");
+                }
+
+                Console.WriteLine("Enter id of the book you are interested in");
+                if(int.TryParse(Console.ReadLine(), out int id))
+                {
+                    InfoBook(id);
+                }
+            }
+            Console.ReadKey(true);
+        }
+
     }
 }
+
 
 
 
