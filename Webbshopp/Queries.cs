@@ -409,24 +409,20 @@ namespace Webbshop
             // get the cart thats active 
             var cart = db.Carts.Include(c => c.CartProducts).FirstOrDefault(c => !c.IsCheckedOut);
 
-            // get input from user 
-            // check if user exist or not 
-            // if user exists, add checkout to that user 
-            // if user dont exist, create a new user, ask for more information about the user. 
-            // probably need lots of checking for country if it exists, then set countryId to country etc etc 
-
+            Customer customer;
+            Address address;
             
             Console.Write("Enter your name: ");
             string name = Console.ReadLine();
 
             Console.Write("Enter country: ");
-            string country = Console.ReadLine();
+            string country = Console.ReadLine().Trim();
 
             Console.Write("Enter city: ");
-            string city = Console.ReadLine();
+            string city = Console.ReadLine().Trim();
 
             Console.Write("Enter city street");
-            string street = Console.ReadLine();
+            string street = Console.ReadLine().Trim();
 
             var existingUser = db.Customers.Include(c => c.Adresses).FirstOrDefault(c => c.Name == name && c.Adresses.Any(a => a.Street == street));
 
@@ -434,7 +430,7 @@ namespace Webbshop
             {
                 while(true)
                 {
-                    Customer customer = new Customer();
+                    customer = new Customer();
                     customer.Name = name;
 
                     Console.Write("Enter your phoneNumber:");
@@ -467,25 +463,80 @@ namespace Webbshop
 
                     }
                     customer.Age = age;
+
+                    address = new Address();
+                    address.Street = street;
+
+                    var existingCountry = db.Countries.FirstOrDefault(c => c.Name == country);
+
+                    if(existingCountry == null)
+                    {
+                        existingCountry = new Country { Name = country };
+                        db.Countries.Add(existingCountry);
+                        db.SaveChanges();
+                    }
+
+                    var existingCity = db.Cities.FirstOrDefault(c => c.Name == city.Trim() && c.CountryId == existingCountry.Id);
+                    if (existingCity == null)
+                    {
+                        existingCity = new City { Name = city.Trim(), CountryId = existingCountry.Id };
+                        db.Cities.Add(existingCity);
+                        db.SaveChanges();
+                    }
+
+                    address.City = existingCity;
+                    customer.Adresses.Add(address);
                     db.Customers.Add(customer);
                     db.SaveChanges();
+                    Console.WriteLine("Customer is succesfully added! Now moving on to the address");
                     break;
                 }
             }
             else
             {
-                Console.WriteLine("The user allready exists... moving to checkout");
+                customer = existingUser;
+                address = existingUser.Adresses.First(a => a.Street == street); 
+                Console.WriteLine("Existing customer found. Moving to checkout...");
                 Thread.Sleep(1000);
             }
 
-            // collected data for customer 
+            // now create a new checkout 
+            Checkout checkout = new Checkout()
+            {
+                Cart = cart,
+                Address = address,
+                IsPaid = false,
+                TotalAmount = cart.TotalAmount
+            };
 
 
+            foreach (var cp in cart.CartProducts)
+            {
+                checkout.CheckoutProducts.Add(new CheckoutProduct
+                {
+                    Product = cp.Product, 
+                    Quantity = cp.Quantity,
+                    ProductId = cp.ProductId
+                });
+            }
 
-            // now customer exists 
-            // and now i want to ask whats his adress too. 
-          
-            
+            db.Checkouts.Add(checkout);
+
+            EmptyCart(db, cart.Id);
+            cart.IsCheckedOut = true;
+
+            db.SaveChanges();
+
+            Console.WriteLine("Yopur checkout contains: ");
+
+            foreach (var item in checkout.CheckoutProducts)
+            {
+                Console.WriteLine($"{item.Product.Name} Quantity: {item.Quantity} Price: {item.Product.Price}");
+            }
+            Console.WriteLine($"Total amount: {checkout.TotalAmount:C}");
+
+            Console.ReadKey(true);
+
         }
     }
 }
