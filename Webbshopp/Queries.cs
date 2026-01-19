@@ -1,6 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
+using Microsoft.Extensions.Primitives;
 using Microsoft.Identity.Client;
 using Microsoft.IdentityModel.Tokens;
 using System;
@@ -224,7 +225,8 @@ namespace Webbshop
                                 case 'b':
                                     return;
                                 case 'c':
-                                    //function to move cart to checkout 
+                                    Console.Clear();
+                                    CartToCheckOut(db);
                                     break;
 
                                 default:
@@ -402,130 +404,88 @@ namespace Webbshop
                 Console.ReadKey(true);
         }
 
-        public static void CartToCheckOut()
+        public static void CartToCheckOut(MyAppContext db)
         {
-            using(var db = new MyAppContext())
+            // get the cart thats active 
+            var cart = db.Carts.Include(c => c.CartProducts).FirstOrDefault(c => !c.IsCheckedOut);
+
+            // get input from user 
+            // check if user exist or not 
+            // if user exists, add checkout to that user 
+            // if user dont exist, create a new user, ask for more information about the user. 
+            // probably need lots of checking for country if it exists, then set countryId to country etc etc 
+
+            
+            Console.Write("Enter your name: ");
+            string name = Console.ReadLine();
+
+            Console.Write("Enter country: ");
+            string country = Console.ReadLine();
+
+            Console.Write("Enter city: ");
+            string city = Console.ReadLine();
+
+            Console.Write("Enter city street");
+            string street = Console.ReadLine();
+
+            var existingUser = db.Customers.Include(c => c.Adresses).FirstOrDefault(c => c.Name == name && c.Adresses.Any(a => a.Street == street));
+
+            if(existingUser == null)
             {
-                // get the cart that is active
-                Cart cart = db.Carts.Include(c => c.CartProducts).FirstOrDefault(c => !c.IsCheckedOut);
-
-                    //customer info 
-                Console.Write("Enter your name: ");
-                string name = Console.ReadLine();
-
-                Console.Write("Enter your street adress: ");
-                string street = Console.ReadLine();
-
-                
-                var customer = db.Customers.Include(c => c.Adresses).FirstOrDefault(c => c.Name == name && c.Adresses.Any(a => a.Street == street));
-
-                if(customer == null)
+                while(true)
                 {
+                    Customer customer = new Customer();
+                    customer.Name = name;
 
-                    // creates a new customer and gets input to set country, city, etc
+                    Console.Write("Enter your phoneNumber:");
+                    string num = Console.ReadLine();
 
-                    Console.WriteLine("Create new customer.");
-                    customer = new Customer()
+                    if (!num.All(char.IsDigit))
                     {
-                        Name = name
-                    };
-
-                    Console.WriteLine("Enter your country ");
-                    string countryName = Console.ReadLine();
-
-                    var country = db.Countries.Include(c => c.Cities).FirstOrDefault(c => c.Name == countryName);
-
-
-                    if (country == null)
-                    {
-                        country = new Country()
-                        {
-                            Name = countryName
-                        };
-                        db.Countries.Add(country);
-                        db.SaveChanges();
+                        Console.WriteLine("must be a valid number");
+                        continue;
+                        
                     }
+                    customer.PhoneNumber = num;
 
-
-                    Console.WriteLine("Enter your city");
-                    string cityName = Console.ReadLine();
-
-                    var city = db.Cities.FirstOrDefault(c => c.Name == cityName && c.CountryId == country.Id);
-
-                    if(city == null)
+                    Console.Write("Enter your email: ");
+                    string email = Console.ReadLine();
+                    if (!email.Contains('@'))
                     {
-                        city = new City()
-                        {
-                            Name = cityName,
-                            CountryId = country.Id
-                        };
-                        db.Cities.Add(city);
-                        db.SaveChanges();
+                        Console.WriteLine("Not a valid email. ");
+                        continue;
+                        
                     }
+                    customer.Email = email;
 
-                    Address address = new Address()
+
+                    Console.Write("Enter your age");
+                    if (!int.TryParse(Console.ReadLine(), out int age))
                     {
-                        Street = street,
-                        CityId = city.Id
-                    };
+                        Console.WriteLine("Not a valid age");
+                        continue;
 
-
-                    customer.Adresses.Add(address);
+                    }
+                    customer.Age = age;
                     db.Customers.Add(customer);
                     db.SaveChanges();
+                    break;
                 }
-                else
-                {
-                    Console.WriteLine("existing customer found");
-                }
-
-                Checkout checkout = new Checkout()
-                {
-                    CartId = cart.Id,
-                    Adress = customer.Adresses.First(a => a.Street == street),
-                    TotalAmount = cart.TotalAmount,
-                    IsPaid = false
-                };
-
-                db.Checkouts.Add(checkout);
-                cart.IsCheckedOut = true;
-                db.SaveChanges();
-               
-                Console.WriteLine("processing...");
-                Thread.Sleep(1000);
-
-                // show items in checkout here 
-
-                foreach(var cartProduct in cart.CartProducts)
-                {
-                    checkout.CheckoutProducts.Add(new CheckoutProduct()
-                    {
-                        ProductId = cartProduct.Id,
-                        Quantity = cartProduct.Quantity,
-                        Checkout = checkout
-                    });
-                        
-                }
-
-                db.SaveChanges();
-
-                Console.ReadKey(true);
-                Console.Clear();
-
-                foreach(var item in checkout.CheckoutProducts)
-                {
-                    Console.WriteLine($"{item.Id} : {item.Product.Name}");
-                }
-
-                Console.WriteLine(checkout.TotalAmount);
-
-                Console.WriteLine("Press p to pay");
-
-                Console.ReadKey(true);
-
-                // take input to pay, show åpaymentmethods, etc etc 
-
             }
+            else
+            {
+                Console.WriteLine("The user allready exists... moving to checkout");
+                Thread.Sleep(1000);
+            }
+
+            // collected data for customer 
+
+
+
+            // now customer exists 
+            // and now i want to ask whats his adress too. 
+          
+            
         }
     }
 }
