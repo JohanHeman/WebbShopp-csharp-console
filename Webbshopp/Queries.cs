@@ -5,6 +5,7 @@ using Microsoft.Identity.Client;
 using Microsoft.IdentityModel.Tokens;
 using System;
 using System.Collections.Generic;
+using System.Data.Common;
 using System.Linq;
 using System.Reflection.Metadata.Ecma335;
 using System.Runtime.InteropServices.Marshalling;
@@ -222,6 +223,9 @@ namespace Webbshop
                                     break;
                                 case 'b':
                                     return;
+                                case 'c':
+                                    //function to move cart to checkout 
+                                    break;
 
                                 default:
                                     Console.Clear();
@@ -390,19 +394,153 @@ namespace Webbshop
                     InfoBook(id);
                 }
             }
-            Console.ReadKey(true);
+
+            else
+            {
+                Console.WriteLine("No books found");
+            }
+                Console.ReadKey(true);
         }
 
+        public static void CartToCheckOut()
+        {
+            using(var db = new MyAppContext())
+            {
+                // get the cart that is active
+                Cart cart = db.Carts.Include(c => c.CartProducts).FirstOrDefault(c => !c.IsCheckedOut);
+
+                    //customer info 
+                Console.Write("Enter your name: ");
+                string name = Console.ReadLine();
+
+                Console.Write("Enter your street adress: ");
+                string street = Console.ReadLine();
+
+                
+                var customer = db.Customers.Include(c => c.Adresses).FirstOrDefault(c => c.Name == name && c.Adresses.Any(a => a.Street == street));
+
+                if(customer == null)
+                {
+
+                    // creates a new customer and gets input to set country, city, etc
+
+                    Console.WriteLine("Create new customer.");
+                    customer = new Customer()
+                    {
+                        Name = name
+                    };
+
+                    Console.WriteLine("Enter your country ");
+                    string countryName = Console.ReadLine();
+
+                    var country = db.Countries.Include(c => c.Cities).FirstOrDefault(c => c.Name == countryName);
+
+
+                    if (country == null)
+                    {
+                        country = new Country()
+                        {
+                            Name = countryName
+                        };
+                        db.Countries.Add(country);
+                        db.SaveChanges();
+                    }
+
+
+                    Console.WriteLine("Enter your city");
+                    string cityName = Console.ReadLine();
+
+                    var city = db.Cities.FirstOrDefault(c => c.Name == cityName && c.CountryId == country.Id);
+
+                    if(city == null)
+                    {
+                        city = new City()
+                        {
+                            Name = cityName,
+                            CountryId = country.Id
+                        };
+                        db.Cities.Add(city);
+                        db.SaveChanges();
+                    }
+
+                    Address address = new Address()
+                    {
+                        Street = street,
+                        CityId = city.Id
+                    };
+
+
+                    customer.Adresses.Add(address);
+                    db.Customers.Add(customer);
+                    db.SaveChanges();
+                }
+                else
+                {
+                    Console.WriteLine("existing customer found");
+                }
+
+                Checkout checkout = new Checkout()
+                {
+                    CartId = cart.Id,
+                    Adress = customer.Adresses.First(a => a.Street == street),
+                    TotalAmount = cart.TotalAmount,
+                    IsPaid = false
+                };
+
+                db.Checkouts.Add(checkout);
+                cart.IsCheckedOut = true;
+                db.SaveChanges();
+               
+                Console.WriteLine("processing...");
+                Thread.Sleep(1000);
+
+                // show items in checkout here 
+
+                foreach(var cartProduct in cart.CartProducts)
+                {
+                    checkout.CheckoutProducts.Add(new CheckoutProduct()
+                    {
+                        ProductId = cartProduct.Id,
+                        Quantity = cartProduct.Quantity,
+                        Checkout = checkout
+                    });
+                        
+                }
+
+                db.SaveChanges();
+
+                Console.ReadKey(true);
+                Console.Clear();
+
+                foreach(var item in checkout.CheckoutProducts)
+                {
+                    Console.WriteLine($"{item.Id} : {item.Product.Name}");
+                }
+
+                Console.WriteLine(checkout.TotalAmount);
+
+                Console.WriteLine("Press p to pay");
+
+                Console.ReadKey(true);
+
+                // take input to pay, show åpaymentmethods, etc etc 
+
+            }
+        }
     }
 }
 
 
 
+// focus today. Add function to add cart to checkout 
+// go through the functyion and understand each line
+// then focus on payment and delivery functions. take it slow, no stress
 
 
 
-// focus today 
-// add function for searchibng for items, finish all the customer functions and prepare for admin functions 
+
+
+
 // CHECK ALL TRY CATCHES AND SUROUND THEM IN MINIMAL BLOCKS IMPORTANT
 
 

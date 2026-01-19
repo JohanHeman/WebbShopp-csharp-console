@@ -12,7 +12,7 @@ namespace Webbshop.Models
         public decimal TotalAmount { get; set; }
         public int? ShippingMethodId { get; set; }
         public bool IsPaid { get; set; }
-        public int? AdressId { get; set; }
+        public int AdressId { get; set; }
         public int CartId { get; set; }
         public Cart cart { get; set; }
         public Address Adress { get; set; }
