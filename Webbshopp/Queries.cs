@@ -7,6 +7,7 @@ using Microsoft.IdentityModel.Tokens;
 using System;
 using System.Collections.Generic;
 using System.Data.Common;
+using System.Diagnostics;
 using System.Linq;
 using System.Reflection.Metadata.Ecma335;
 using System.Runtime.InteropServices.Marshalling;
@@ -68,9 +69,15 @@ namespace Webbshop
                 }
                 Console.ReadKey();
             }
-            catch(Exception e) 
+            catch(DbException e) 
             {
                 Console.WriteLine("Something went wrong. " + e.Message);
+                Console.WriteLine(e.StackTrace);
+            }
+            catch(DbUpdateException e)
+            {
+                Console.WriteLine(e.Message);
+                Console.WriteLine(e.StackTrace);
             }
         }
 
@@ -100,9 +107,15 @@ namespace Webbshop
                     }
                 }
             }
-            catch(Exception e)
+            catch(DbException e)
             {
                 Console.WriteLine("Something went wrong. " + e.Message);
+                Console.WriteLine(e.StackTrace);
+            }
+            catch(DbUpdateException e)
+            {
+                Console.WriteLine(e.Message);
+                Console.WriteLine(e.StackTrace);
             }
         }
 
@@ -114,27 +127,28 @@ namespace Webbshop
                 Console.WriteLine("This product is out of stock.");
                 return;
             }
-
-            var checkCart = db.Carts.Include(c => c.CartProducts).FirstOrDefault(c => !c.IsCheckedOut);
-
-            if (checkCart != null)
+            
+            try
             {
-                var cartProduct = checkCart.CartProducts.FirstOrDefault(cp => cp.ProductId == product.Id);
+                var checkCart = db.Carts.Include(c => c.CartProducts).FirstOrDefault(c => !c.IsCheckedOut);
 
-                if (cartProduct != null)
+                if (checkCart != null)
                 {
-                    cartProduct.Quantity++;
-                }
-                else
-                {
-                    checkCart.CartProducts.Add(new CartProduct
+                    var cartProduct = checkCart.CartProducts.FirstOrDefault(cp => cp.ProductId == product.Id);
+
+                    if (cartProduct != null)
                     {
-                        ProductId = product.Id,
-                        Quantity = 1
-                    });
-                }
-                 try
-                {
+                        cartProduct.Quantity++;
+                    }
+                    else
+                    {
+                        checkCart.CartProducts.Add(new CartProduct
+                        {
+                            ProductId = product.Id,
+                            Quantity = 1
+                        });
+                    }
+
                     checkCart.TotalAmount += product.Price;
                     product.InStock--;
                     db.SaveChanges();
@@ -142,37 +156,38 @@ namespace Webbshop
                     Console.WriteLine("Succesfully added item to cart");
                     Console.ReadLine();
                 }
-                catch(Exception e)
-                {
-                    Console.WriteLine("Something went wrong \n" + e.Message);
-                }
-
-                }
-            else
+                else
                 {
 
-                checkCart = new Cart();
-                db.Carts.Add(checkCart);
-                checkCart.TotalAmount += product.Price;
-                product.InStock--;
+                    checkCart = new Cart();
+                    db.Carts.Add(checkCart);
+                    checkCart.TotalAmount += product.Price;
+                    product.InStock--;
 
-                checkCart.CartProducts.Add(new CartProduct
-                {
-                    ProductId = product.Id,
-                    Quantity = 1
-                });
-                try
-                {
-                    db.SaveChanges();
-                    Console.Clear();
-                    Console.WriteLine("Succesfully added item to cart");
-                    Console.ReadLine();
-                }
-                catch(Exception e)
-                {
-                    Console.WriteLine("Something went wrong \n" + e.Message);
+                    checkCart.CartProducts.Add(new CartProduct
+                    {
+                        ProductId = product.Id,
+                        Quantity = 1
+                    }); 
+                    {
+                        db.SaveChanges();
+                        Console.Clear();
+                        Console.WriteLine("Succesfully added item to cart");
+                        Console.ReadLine();
+                    }
                 }
             }
+            catch(DbException e)
+            {
+                Console.WriteLine(e.Message);
+                Console.WriteLine(e.StackTrace);
+            }
+            catch(DbUpdateException e)
+            {
+                Console.WriteLine(e.Message);
+                Console.WriteLine(e.StackTrace);
+            }
+          
         }
 
         public static void ShowCart()
@@ -242,26 +257,45 @@ namespace Webbshop
                 }
             }
 
-            catch(Exception e)
+            catch(DbException e)
             {
                 Console.WriteLine(e.Message);
+                Console.WriteLine(e.StackTrace);
+            }
+            catch(DbUpdateException e)
+            {
+                Console.WriteLine(e.Message);
+                Console.WriteLine(e.StackTrace);
             }
         }
 
         public static void EmptyCart(MyAppContext db, int id)
         {
-            var cart = db.Carts.FirstOrDefault(c => c.Id == id);
+            try
+            {
+                var cart = db.Carts.FirstOrDefault(c => c.Id == id);
 
-            if (cart != null)
-            {
-                db.Carts.Remove(cart);
-                db.SaveChanges();
-                Console.Clear();
+                if (cart != null)
+                {
+                    db.Carts.Remove(cart);
+                    db.SaveChanges();
+                    Console.Clear();
+                }
+                else
+                {
+                    Console.Clear();
+                    Console.WriteLine("Something went wrong...");
+                }
             }
-            else
+            catch(DbException e)
             {
-                Console.Clear();
-                Console.WriteLine("Something went wrong...");
+                Console.WriteLine(e.Message);
+                Console.WriteLine(e.StackTrace);
+            }
+            catch(DbUpdateException e)
+            {
+                Console.WriteLine(e.Message);
+                Console.WriteLine(e.StackTrace); 
             }
         }
 
@@ -315,9 +349,16 @@ namespace Webbshop
                         }
                     }
                 }
-            }catch(Exception e)
+            }
+            catch(DbException e)
             {
                 Console.WriteLine(e.Message);
+                Console.WriteLine(e.StackTrace);
+            }
+            catch(DbUpdateException e)
+            {
+                Console.WriteLine(e.Message);
+                Console.WriteLine(e.StackTrace);
             }
         }
 
@@ -327,34 +368,50 @@ namespace Webbshop
             Console.WriteLine("Current quantity: " + currentProduct.Quantity);
 
 
-            Console.Write("Enter the amount you would like to change it to: ");
-            if (int.TryParse(Console.ReadLine(), out int quant))
+            try
             {
 
-                currentProduct.Product.InStock += currentProduct.Quantity; // restores the instock for product
 
 
-                int availableStock = currentProduct.Product.InStock;
-                if (quant > availableStock)
+                Console.Write("Enter the amount you would like to change it to: ");
+                if (int.TryParse(Console.ReadLine(), out int quant))
                 {
-                    Console.WriteLine($"Cannot set quantity to {quant}. Only {availableStock} available.");
-                    return;
+
+                    currentProduct.Product.InStock += currentProduct.Quantity; // restores the instock for product
+
+
+                    int availableStock = currentProduct.Product.InStock;
+                    if (quant > availableStock)
+                    {
+                        Console.WriteLine($"Cannot set quantity to {quant}. Only {availableStock} available.");
+                        return;
+                    }
+
+                    currentProduct.Cart.TotalAmount -= currentProduct.Product.Price * currentProduct.Quantity;
+                    currentProduct.Quantity = quant; // changes the quantity of the chosen product
+                    currentProduct.Product.InStock -= quant; // updates the new instock value 
+                    currentProduct.Cart.TotalAmount += currentProduct.Product.Price * quant;
+
+                    db.SaveChanges();
+
+                    Console.WriteLine("Cart succesfully update!");
+                    Console.ReadKey(true);
+                    Console.Clear();
                 }
-
-                currentProduct.Cart.TotalAmount -= currentProduct.Product.Price * currentProduct.Quantity;
-                currentProduct.Quantity = quant; // changes the quantity of the chosen product
-                currentProduct.Product.InStock -= quant; // updates the new instock value 
-                currentProduct.Cart.TotalAmount += currentProduct.Product.Price * quant;
-
-                db.SaveChanges();
-                
-                Console.WriteLine("Cart succesfully update!");
-                Console.ReadKey(true);
-                Console.Clear();
+                else
+                {
+                    Console.WriteLine("Not valid value");
+                }
             }
-            else
+            catch (DbUpdateException e)
             {
-                Console.WriteLine("Not valid value");
+                Console.WriteLine(e.Message);
+                Console.WriteLine(e.StackTrace);
+            }
+            catch(DbException e)
+            {
+                Console.WriteLine(e.Message);
+                Console.WriteLine(e.StackTrace);
             }
         }
 
@@ -362,15 +419,27 @@ namespace Webbshop
         public static void DeleteCartItem(MyAppContext db, CartProduct currentProduct)
         {
             Console.Clear();
+            try
+            {
+                currentProduct.Product.InStock += currentProduct.Quantity;
 
-            currentProduct.Product.InStock += currentProduct.Quantity;
+                currentProduct.Cart.TotalAmount -= currentProduct.Product.Price * currentProduct.Quantity;
 
-            currentProduct.Cart.TotalAmount -= currentProduct.Product.Price * currentProduct.Quantity;
-
-            db.CartProducts.Remove(currentProduct);
-            db.SaveChanges();
-            Console.WriteLine("Succesfully deleted item from cart");
-            Console.ReadKey(true);
+                db.CartProducts.Remove(currentProduct);
+                db.SaveChanges();
+                Console.WriteLine("Succesfully deleted item from cart");
+                Console.ReadKey(true);
+            }
+            catch (DbUpdateException e)
+            {
+                Console.WriteLine(e.Message);
+                Console.WriteLine(e.StackTrace);
+            }
+            catch (DbException e)
+            {
+                Console.WriteLine(e.Message);
+                Console.WriteLine(e.StackTrace);
+            }
         }
 
 
@@ -406,151 +475,165 @@ namespace Webbshop
 
         public static void CartToCheckOut(MyAppContext db)
         {
-            // get the cart thats active 
-            var cart = db.Carts.Include(c => c.CartProducts).FirstOrDefault(c => !c.IsCheckedOut);
-
-            Customer customer;
-            Address address;
-            
-            Console.Write("Enter your name: ");
-            string name = Console.ReadLine();
-
-            Console.Write("Enter country: ");
-            string country = Console.ReadLine().Trim();
-
-            Console.Write("Enter city: ");
-            string city = Console.ReadLine().Trim();
-
-            Console.Write("Enter city street");
-            string street = Console.ReadLine().Trim();
-
-            var existingUser = db.Customers.Include(c => c.Adresses).FirstOrDefault(c => c.Name == name && c.Adresses.Any(a => a.Street == street));
-
-            if(existingUser == null)
+            try
             {
-                while(true)
+                var cart = db.Carts.Include(c => c.CartProducts).FirstOrDefault(c => !c.IsCheckedOut);
+
+                Customer customer;
+                Address address;
+
+                Console.Write("Enter your name: ");
+                string name = Console.ReadLine();
+
+                Console.Write("Enter country: ");
+                string country = Console.ReadLine().Trim();
+
+                Console.Write("Enter city: ");
+                string city = Console.ReadLine().Trim();
+
+                Console.Write("Enter city street");
+                string street = Console.ReadLine().Trim();
+
+                var existingUser = db.Customers.Include(c => c.Adresses).FirstOrDefault(c => c.Name == name && c.Adresses.Any(a => a.Street == street));
+
+                if (existingUser == null)
                 {
-                    customer = new Customer();
-                    customer.Name = name;
-
-                    Console.Write("Enter your phoneNumber:");
-                    string num = Console.ReadLine();
-
-                    if (!num.All(char.IsDigit))
+                    while (true)
                     {
-                        Console.WriteLine("must be a valid number");
-                        continue;
-                        
-                    }
-                    customer.PhoneNumber = num;
+                        customer = new Customer();
+                        customer.Name = name;
 
-                    Console.Write("Enter your email: ");
-                    string email = Console.ReadLine();
-                    if (!email.Contains('@'))
-                    {
-                        Console.WriteLine("Not a valid email. ");
-                        continue;
-                        
-                    }
-                    customer.Email = email;
+                        Console.Write("Enter your phoneNumber:");
+                        string num = Console.ReadLine();
+
+                        if (!num.All(char.IsDigit))
+                        {
+                            Console.WriteLine("must be a valid number");
+                            continue;
+
+                        }
+                        customer.PhoneNumber = num;
+
+                        Console.Write("Enter your email: ");
+                        string email = Console.ReadLine();
+                        if (!email.Contains('@'))
+                        {
+                            Console.WriteLine("Not a valid email. ");
+                            continue;
+
+                        }
+                        customer.Email = email;
 
 
-                    Console.Write("Enter your age");
-                    if (!int.TryParse(Console.ReadLine(), out int age))
-                    {
-                        Console.WriteLine("Not a valid age");
-                        continue;
+                        Console.Write("Enter your age");
+                        if (!int.TryParse(Console.ReadLine(), out int age))
+                        {
+                            Console.WriteLine("Not a valid age");
+                            continue;
 
-                    }
-                    customer.Age = age;
+                        }
+                        customer.Age = age;
 
-                    address = new Address();
-                    address.Street = street;
+                        address = new Address();
+                        address.Street = street;
 
-                    var existingCountry = db.Countries.FirstOrDefault(c => c.Name == country);
+                        var existingCountry = db.Countries.FirstOrDefault(c => c.Name == country);
 
-                    if(existingCountry == null)
-                    {
-                        existingCountry = new Country { Name = country };
-                        db.Countries.Add(existingCountry);
+                        if (existingCountry == null)
+                        {
+                            existingCountry = new Country { Name = country };
+                            db.Countries.Add(existingCountry);
+                            db.SaveChanges();
+                        }
+
+                        var existingCity = db.Cities.FirstOrDefault(c => c.Name == city.Trim() && c.CountryId == existingCountry.Id);
+                        if (existingCity == null)
+                        {
+                            existingCity = new City { Name = city.Trim(), CountryId = existingCountry.Id };
+                            db.Cities.Add(existingCity);
+                            db.SaveChanges();
+                        }
+
+                        address.City = existingCity;
+                        customer.Adresses.Add(address);
+                        db.Customers.Add(customer);
                         db.SaveChanges();
+                        Console.WriteLine("Customer is succesfully added! Now moving on to the address");
+                        break;
                     }
-
-                    var existingCity = db.Cities.FirstOrDefault(c => c.Name == city.Trim() && c.CountryId == existingCountry.Id);
-                    if (existingCity == null)
-                    {
-                        existingCity = new City { Name = city.Trim(), CountryId = existingCountry.Id };
-                        db.Cities.Add(existingCity);
-                        db.SaveChanges();
-                    }
-
-                    address.City = existingCity;
-                    customer.Adresses.Add(address);
-                    db.Customers.Add(customer);
-                    db.SaveChanges();
-                    Console.WriteLine("Customer is succesfully added! Now moving on to the address");
-                    break;
                 }
-            }
-            else
-            {
-                customer = existingUser;
-                address = existingUser.Adresses.First(a => a.Street == street); 
-                Console.WriteLine("Existing customer found. Moving to checkout...");
-                Thread.Sleep(1000);
-            }
+                else
+                {
+                    customer = existingUser;
+                    address = existingUser.Adresses.First(a => a.Street == street);
+                    Console.WriteLine("Existing customer found. Moving to checkout...");
+                    Thread.Sleep(1000);
+                }
+            
 
             // now create a new checkout 
-            Checkout checkout = new Checkout()
-            {
-                Cart = cart,
-                Address = address,
-                IsPaid = false,
-                TotalAmount = cart.TotalAmount
-            };
-
-
-            foreach (var cp in cart.CartProducts)
-            {
-                checkout.CheckoutProducts.Add(new CheckoutProduct
+                Checkout checkout = new Checkout()
                 {
-                    Product = cp.Product, 
-                    Quantity = cp.Quantity,
-                    ProductId = cp.ProductId
-                });
+                    Cart = cart,
+                    Address = address,
+                    IsPaid = false,
+                    TotalAmount = cart.TotalAmount
+                };
+
+
+                foreach (var cp in cart.CartProducts)
+                {
+                    checkout.CheckoutProducts.Add(new CheckoutProduct
+                    {
+                        Product = cp.Product, 
+                        Quantity = cp.Quantity,
+                        ProductId = cp.ProductId
+                    });
+                }
+
+                db.Checkouts.Add(checkout);
+
+                EmptyCart(db, cart.Id);
+                cart.IsCheckedOut = true;
+
+                db.SaveChanges();
+
+                Console.WriteLine("Yopur checkout contains: ");
+
+                foreach (var item in checkout.CheckoutProducts)
+                {
+                    Console.WriteLine($"{item.Product.Name} Quantity: {item.Quantity} Price: {item.Product.Price}");
+                }
+                Console.WriteLine($"Total amount: {checkout.TotalAmount:C}");
+
+                Console.ReadKey(true);
             }
-
-            db.Checkouts.Add(checkout);
-
-            EmptyCart(db, cart.Id);
-            cart.IsCheckedOut = true;
-
-            db.SaveChanges();
-
-            Console.WriteLine("Yopur checkout contains: ");
-
-            foreach (var item in checkout.CheckoutProducts)
+            catch(DbException e)
             {
-                Console.WriteLine($"{item.Product.Name} Quantity: {item.Quantity} Price: {item.Product.Price}");
+                Console.WriteLine(e.Message);
+                Console.WriteLine(e.StackTrace);
             }
-            Console.WriteLine($"Total amount: {checkout.TotalAmount:C}");
-
-            Console.ReadKey(true);
-
+            catch(DbUpdateException e)
+            {
+                Console.WriteLine(e.Message);
+                Console.WriteLine(e.StackTrace);
+            }
         }
     }
 }
 
 
 
-// focus today. Add function to add cart to checkout 
-// go through the functyion and understand each line
-// then focus on payment and delivery functions. take it slow, no stress
 
 
 
 
 
+// go through all the try catches and see if they are correct 
+// understand how to use the try catch blocks propperly 
+// continue with the checkout / payment query 
+// start doing admin query but do them with async 
+// then focus in making mongodb 
 
 // CHECK ALL TRY CATCHES AND SUROUND THEM IN MINIMAL BLOCKS IMPORTANT
 

@@ -18,9 +18,9 @@ namespace Webbshop
     {
         public static List<Category> GetCategories()
         {
+            string connectionString = "data source=JohanPC; initial catalog=Webbshopp; Integrated Security=True; TrustServerCertificate=True;";
             try
             {
-                string connectionString = "data source=JohanPC; initial catalog=Webbshopp; Integrated Security=True; TrustServerCertificate=True;";
                 using (var connection = new SqlConnection(connectionString))
                 {
                     string sql = "SELECT * FROM Categories";
@@ -39,21 +39,22 @@ namespace Webbshop
         public static List<Product> GetBooks()
         {
             string connectionString = "data source=JohanPC; initial catalog=Webbshopp; Integrated Security=True; TrustServerCertificate=True;";
-            using(var connection = new SqlConnection(connectionString))
+            try
             {
-                Console.WriteLine("Bookname: ");
-                string answer = Console.ReadLine();
+                using(var connection = new SqlConnection(connectionString))
+                {
+                    Console.WriteLine("Bookname: ");
+                    string answer = Console.ReadLine();
 
-                try
-                {
-                    string sql = "SELECT * FROM Products WHERE Name LIKE @Search";
-                    return connection.Query<Product>(sql, new {Search = "%" + answer + "%"}).ToList();
+                
+                        string sql = "SELECT * FROM Products WHERE Name LIKE @Search";
+                        return connection.Query<Product>(sql, new {Search = "%" + answer + "%"}).ToList();
                 }
-                catch (DbException e)
-                {
-                    Console.WriteLine(e.Message);
-                    return new List<Product>();
-                }
+            }
+            catch (DbException e)
+            {
+                Console.WriteLine(e.Message);
+                return new List<Product>();
             }
         }
     }
