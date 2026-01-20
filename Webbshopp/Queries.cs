@@ -243,6 +243,7 @@ namespace Webbshop
                                 case 'c':
                                     Console.Clear();
                                     CartToCheckOut(db);
+                                    EmptyCart(db, cart.Id);
                                     break;
 
                                 default:
@@ -276,17 +277,10 @@ namespace Webbshop
             {
                 var cart = db.Carts.FirstOrDefault(c => c.Id == id);
 
-                if (cart != null)
-                {
-                    db.Carts.Remove(cart);
-                    db.SaveChanges();
-                    Console.Clear();
-                }
-                else
-                {
-                    Console.Clear();
-                    Console.WriteLine("Something went wrong...");
-                }
+                cart.CartProducts.Clear();
+                cart.TotalAmount = 0;
+
+                db.SaveChanges();
             }
             catch(DbException e)
             {
@@ -508,11 +502,10 @@ namespace Webbshop
 
                 if (existingUser == null)
                 {
+                    customer = new Customer();
+                    customer.Name = name;
                     while (true)
                     {
-                        customer = new Customer();
-                        customer.Name = name;
-
                         Console.Write("Enter your phoneNumber:");
                         string num = Console.ReadLine();
 
@@ -522,19 +515,26 @@ namespace Webbshop
                             continue;
 
                         }
-                        customer.PhoneNumber = num;
 
+                        customer.PhoneNumber = num;
+                        break;
+                    }
+
+                    while(true)
+                    {
                         Console.Write("Enter your email: ");
                         string email = Console.ReadLine();
                         if (!email.Contains('@'))
                         {
                             Console.WriteLine("Not a valid email. ");
                             continue;
-
                         }
                         customer.Email = email;
-
-
+                        break;
+                    }
+                        
+                    while(true)
+                    {
                         Console.Write("Enter your age");
                         if (!int.TryParse(Console.ReadLine(), out int age))
                         {
@@ -542,7 +542,14 @@ namespace Webbshop
                             continue;
 
                         }
+                        if(age !> 14)
+                        {
+                            Console.WriteLine("Not a valid age");
+                            continue;
+                        }
                         customer.Age = age;
+                        break;
+                    }
 
                         address = new Address();
                         address.Street = street;
@@ -569,8 +576,7 @@ namespace Webbshop
                         db.Customers.Add(customer);
                         db.SaveChanges();
                         Console.WriteLine("Customer is succesfully added! Now moving on to the address");
-                        break;
-                    }
+                    
                 }
                 else
                 {
@@ -592,16 +598,21 @@ namespace Webbshop
                     Cart = cart
                 };
 
+                foreach (var cartProduct in cart.CartProducts)
+                {
+                    checkout.CheckoutProducts.Add(new CheckoutProduct
+                    {
+                        Quantity = cartProduct.Quantity,
+                        Product = cartProduct.Product
+                    });
+                }
+
 
                 db.Checkouts.Add(checkout);
                 db.SaveChanges();
-                Console.WriteLine("Saved succes");
                 Console.ReadLine();
-               
 
-
-                cart.IsCheckedOut = true;
-                db.SaveChanges();
+                Console.Clear();
 
                 checkout = db.Checkouts.Include(c => c.CheckoutProducts).ThenInclude(cp => cp.Product).First(c => c.Id == checkout.Id);
 
@@ -620,12 +631,12 @@ namespace Webbshop
                 switch(key.KeyChar)
                 {
                     case 'q':
+                        Console.Clear();
                         return;
                     case 'p':
                         DeliveryAndPayment(db, checkout, cart, customer);
                         break;
                 }
-                
                 db.SaveChanges();
             }
             catch(DbException e)
@@ -674,6 +685,7 @@ namespace Webbshop
                                 if (!hasFee)
                                 {
                                     checkout.TotalAmount += choseMethod.Price;
+
                                     hasFee = true;
                                 }
                                 break;
@@ -682,10 +694,12 @@ namespace Webbshop
                                 if(!hasFee)
                                 {
                                     checkout.TotalAmount += choseMethod.Price;
+                                    checkout.ShippingMethod = choseMethod;
                                     hasFee = true;
                                 }
                                 break;
                             case 3:
+                                Console.Clear();
                                 return;
                         }
                     }
@@ -703,8 +717,10 @@ namespace Webbshop
                     switch (keyForPayment.KeyChar)
                     {
                         case 'q':
+                            Console.Clear();
                             return;
                         case 'p':
+                            Console.Clear();
                             if (Payment(db, checkout, cart, customer))
                                 isPaid = true;
                             break;
@@ -733,7 +749,7 @@ namespace Webbshop
                 List<string> windowList = new();
                 foreach(var item in options)
                 {
-                    windowList.Add(item.Name.ToString());
+                    windowList.Add(item.Id.ToString() + " :" +  item.Name.ToString());
                 }
 
                 var window = new Window("Payment options", 1, 0, windowList);
@@ -748,7 +764,11 @@ namespace Webbshop
                         case 1:
                             paymentMethod = db.PaymentMethods.Where( p => p.Id == input).FirstOrDefault();
                             Payment creditPayment = CreditCardPayment(checkout, customer, paymentMethod);
-                            if(creditPayment != null) db.Payments.Add(creditPayment);
+                            if (creditPayment != null)
+                            {
+                                db.Payments.Add(creditPayment);
+                                db.SaveChanges();
+                            }
                             else
                             {
                                 Console.WriteLine("Payment failed. ");
@@ -760,11 +780,13 @@ namespace Webbshop
                             paymentMethod = db.PaymentMethods.Where(p => p.Id == input).FirstOrDefault();
                             Payment klarnaPayment = KlarnaPayment(checkout, customer, paymentMethod);
                             db.Payments.Add(klarnaPayment);
+                            Console.WriteLine("The user is putting in Bank Id information...");
+                            Thread.Sleep(1000);
                             break;
                     }
                 }
-                
-                EmptyCart(db, cart.Id);
+
+
 
                 db.SaveChanges();
 
@@ -807,10 +829,13 @@ namespace Webbshop
                         Console.WriteLine("Must be a valid credit card number");
                         continue;
                     }
-
+                    break;
+                }
+                while(true)
+                {
                     Console.Write("Enter the expirationdate: ");
                     string answer = Console.ReadLine();
-                    if (answer.All(char.IsDigit))
+                    if (answer.All(char.IsDigit) && answer.Length == 4)
                     {
                         payment.ExpirationDate = answer;
                     }
@@ -821,9 +846,8 @@ namespace Webbshop
                     }
 
                     break;
-
-
                 }
+                
                 return payment;
             }
             catch(DbException e)
