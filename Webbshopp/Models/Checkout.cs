@@ -13,11 +13,11 @@ namespace Webbshop.Models
         public int? ShippingMethodId { get; set; }
         public bool IsPaid { get; set; }
         public int AddressId { get; set; }
-        public int CartId { get; set; }
-        public Cart Cart { get; set; }
+        public int? CartId { get; set; }
+        public Cart? Cart { get; set; }
         public Address Address { get; set; }
-        public ShippingMethod ShippingMethod { get; set; }
-        public Payment? Payment { get; set; } // navigation for payment one to one relationship
-        public ICollection<CheckoutProduct> CheckoutProducts { get; set; } = new List<CheckoutProduct>();
+        public ShippingMethod? ShippingMethod { get; set; }
+        public Payment? Payment { get; set; } 
+        public ICollection<CheckoutProduct>? CheckoutProducts { get; set; } = new List<CheckoutProduct>();
     }
 }

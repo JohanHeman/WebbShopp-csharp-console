@@ -15,6 +15,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Transactions;
 using System.Xml;
+using Webbshop.Connections;
 using Webbshop.Migrations;
 using Webbshop.Models;
 using WindowDemo;
@@ -215,7 +216,7 @@ namespace Webbshop
                                 cartList.Add($"{item.Product.Name} | Price: {item.Product.Price}$ | Quantity: {item.Quantity}");
 
                             }
-                            cartList.Add($"Total: {cart.TotalAmount}");
+                            cartList.Add($"Total ink moms: {cart.TotalAmount * 1.25m}");
                             var window = new Window("Cart", 2, 0, cartList);
                             window.Draw();
 
@@ -473,11 +474,20 @@ namespace Webbshop
                 Console.ReadKey(true);
         }
 
+
+
+
         public static void CartToCheckOut(MyAppContext db)
         {
             try
             {
-                var cart = db.Carts.Include(c => c.CartProducts).FirstOrDefault(c => !c.IsCheckedOut);
+                var cart = db.Carts.Include(c => c.CartProducts).ThenInclude(cp => cp.Product).FirstOrDefault(c => !c.IsCheckedOut);
+
+                if(cart == null || !cart.CartProducts.Any())
+                {
+                    Console.WriteLine("no items in cart, cant checkout");
+                    return;     
+                }
 
                 Customer customer;
                 Address address;
@@ -494,7 +504,7 @@ namespace Webbshop
                 Console.Write("Enter city street");
                 string street = Console.ReadLine().Trim();
 
-                var existingUser = db.Customers.Include(c => c.Adresses).FirstOrDefault(c => c.Name == name && c.Adresses.Any(a => a.Street == street));
+                var existingUser = db.Customers.Include(c => c.Adresses).ThenInclude(a => a.City).FirstOrDefault(c => c.Name == name && c.Adresses.Any(a => a.Street == street && a.City.Name == city));
 
                 if (existingUser == null)
                 {
@@ -569,44 +579,54 @@ namespace Webbshop
                     Console.WriteLine("Existing customer found. Moving to checkout...");
                     Thread.Sleep(1000);
                 }
-            
 
-            // now create a new checkout 
+
+                // create new checkout 
+
+
                 Checkout checkout = new Checkout()
                 {
-                    Cart = cart,
-                    Address = address,
+                    TotalAmount = cart.TotalAmount,
                     IsPaid = false,
-                    TotalAmount = cart.TotalAmount
+                    Address = address,
+                    Cart = cart
                 };
 
 
-                foreach (var cp in cart.CartProducts)
-                {
-                    checkout.CheckoutProducts.Add(new CheckoutProduct
-                    {
-                        Product = cp.Product, 
-                        Quantity = cp.Quantity,
-                        ProductId = cp.ProductId
-                    });
-                }
-
                 db.Checkouts.Add(checkout);
+                db.SaveChanges();
+                Console.WriteLine("Saved succes");
+                Console.ReadLine();
+               
 
-                EmptyCart(db, cart.Id);
+
                 cart.IsCheckedOut = true;
-
                 db.SaveChanges();
 
-                Console.WriteLine("Yopur checkout contains: ");
+                checkout = db.Checkouts.Include(c => c.CheckoutProducts).ThenInclude(cp => cp.Product).First(c => c.Id == checkout.Id);
 
+
+                Console.WriteLine("Your checkout contains: ");
+                checkout.TotalAmount = checkout.TotalAmount * 1.25m;
                 foreach (var item in checkout.CheckoutProducts)
                 {
                     Console.WriteLine($"{item.Product.Name} Quantity: {item.Quantity} Price: {item.Product.Price}");
                 }
-                Console.WriteLine($"Total amount: {checkout.TotalAmount:C}");
+                Console.WriteLine($"Total amount ink moms: {checkout.TotalAmount}");
 
-                Console.ReadKey(true);
+                Console.WriteLine("'P' for payment options 'q' to quit");
+
+                ConsoleKeyInfo key =  Console.ReadKey(true);
+                switch(key.KeyChar)
+                {
+                    case 'q':
+                        return;
+                    case 'p':
+                        DeliveryAndPayment(db, checkout, cart, customer);
+                        break;
+                }
+                
+                db.SaveChanges();
             }
             catch(DbException e)
             {
@@ -619,6 +639,217 @@ namespace Webbshop
                 Console.WriteLine(e.StackTrace);
             }
         }
+
+
+        public static void DeliveryAndPayment(MyAppContext db, Checkout checkout, Cart cart, Customer customer)
+        {
+            bool isPaid = false;
+            bool hasFee = false;
+
+            Console.Clear();
+            try
+            {
+                List<ShippingMethod> deliveryOptions = db.ShippingMethods.ToList();
+
+                List<string> windowList = new();
+                foreach (var item in deliveryOptions)
+                {
+                    windowList.Add(item.Id.ToString() + item.Name.ToString() + ", price: " + item.Price.ToString());
+                }
+
+                var window = new Window("Delivery options", 1, 0, windowList);
+                window.Draw();
+                Console.WriteLine("Press '3' to go back.");
+                ShippingMethod choseMethod;
+                while (!isPaid) 
+                {
+
+                    ConsoleKeyInfo key = Console.ReadKey();
+                    if(int.TryParse(key.KeyChar.ToString(), out int input))
+                    {
+                        switch(input)
+                        {
+                            case 1:
+                                choseMethod = db.ShippingMethods.Where(s => s.Id == input).FirstOrDefault();
+                                if (!hasFee)
+                                {
+                                    checkout.TotalAmount += choseMethod.Price;
+                                    hasFee = true;
+                                }
+                                break;
+                            case 2:
+                                choseMethod = db.ShippingMethods.Where(s => s.Id == input).FirstOrDefault();
+                                if(!hasFee)
+                                {
+                                    checkout.TotalAmount += choseMethod.Price;
+                                    hasFee = true;
+                                }
+                                break;
+                            case 3:
+                                return;
+                        }
+                    }
+                    Console.Clear();
+
+                    foreach (var item in checkout.CheckoutProducts)
+                    {
+                        Console.WriteLine($"{item.Product.Name} Quantity: {item.Quantity} Price: {item.Product.Price}");
+                    }
+                    Console.WriteLine($"Total amount ink moms and delivery fee: {checkout.TotalAmount}");
+
+                    Console.WriteLine("'P' for payment options 'q' to quit");
+
+                    ConsoleKeyInfo keyForPayment = Console.ReadKey(true);
+                    switch (keyForPayment.KeyChar)
+                    {
+                        case 'q':
+                            return;
+                        case 'p':
+                            if (Payment(db, checkout, cart, customer))
+                                isPaid = true;
+                            break;
+                    }
+                }
+            }
+
+            catch (DbException e)
+            {
+                Console.WriteLine(e.Message);
+                Console.WriteLine(e.StackTrace);
+            }
+            catch(DbUpdateException e)
+            {
+                Console.WriteLine(e.Message);
+                Console.WriteLine(e.StackTrace);
+            }
+        }
+
+        public static bool Payment(MyAppContext db, Checkout checkout,Cart cart, Customer customer)
+        {
+            try
+            {
+                PaymentMethod paymentMethod = new();
+                List<PaymentMethod> options = db.PaymentMethods.ToList();
+                List<string> windowList = new();
+                foreach(var item in options)
+                {
+                    windowList.Add(item.Name.ToString());
+                }
+
+                var window = new Window("Payment options", 1, 0, windowList);
+                window.Draw();
+
+                ConsoleKeyInfo key = Console.ReadKey(true);
+                
+                if(int.TryParse(key.KeyChar.ToString(), out int input))
+                {
+                    switch(input)
+                    {
+                        case 1:
+                            paymentMethod = db.PaymentMethods.Where( p => p.Id == input).FirstOrDefault();
+                            Payment creditPayment = CreditCardPayment(checkout, customer, paymentMethod);
+                            if(creditPayment != null) db.Payments.Add(creditPayment);
+                            else
+                            {
+                                Console.WriteLine("Payment failed. ");
+                                return false;
+                            }
+
+                                break;
+                        case 2:
+                            paymentMethod = db.PaymentMethods.Where(p => p.Id == input).FirstOrDefault();
+                            Payment klarnaPayment = KlarnaPayment(checkout, customer, paymentMethod);
+                            db.Payments.Add(klarnaPayment);
+                            break;
+                    }
+                }
+                
+                EmptyCart(db, cart.Id);
+
+                db.SaveChanges();
+
+                Console.WriteLine($"Thank you for your purchase {customer.Name}");
+                Console.ReadKey();
+
+                return true;
+
+            }
+            catch(DbException e)
+            {
+                Console.WriteLine(e.Message);
+                Console.WriteLine(e.StackTrace);
+                return false;
+            }
+        }
+
+
+        public static Payment CreditCardPayment(Checkout checkout, Customer customer, PaymentMethod paymentMethod)
+        {
+            try
+            {
+                Payment payment = new();
+                payment.Amount = checkout.TotalAmount;
+                payment.CardholderName = customer.Name;
+                payment.PaymentMethod = paymentMethod;
+                payment.CheckOut = checkout;
+                while (true)
+                {
+
+                    Console.WriteLine("Enter your last 4 credit card numbers");
+
+                    string input = Console.ReadLine();
+                    if (input.All(char.IsDigit))
+                    {
+                        payment.CardLastFour = input;
+                    }
+                    else
+                    {
+                        Console.WriteLine("Must be a valid credit card number");
+                        continue;
+                    }
+
+                    Console.Write("Enter the expirationdate: ");
+                    string answer = Console.ReadLine();
+                    if (answer.All(char.IsDigit))
+                    {
+                        payment.ExpirationDate = answer;
+                    }
+                    else
+                    {
+                        Console.WriteLine("Must be a valid month / day");
+                        continue;
+                    }
+
+                    break;
+
+
+                }
+                return payment;
+            }
+            catch(DbException e)
+            {
+                Console.WriteLine(e.Message);
+                Console.WriteLine(e.StackTrace);
+            }
+            catch(DbUpdateException e)
+            {
+                Console.WriteLine(e.Message);
+                Console.WriteLine(e.StackTrace);
+            }
+            return null;
+        }
+
+        public static Payment KlarnaPayment(Checkout checkout, Customer customer, PaymentMethod paymentMethod)
+        {
+            Payment payment = new Payment();
+            payment.Amount = checkout.TotalAmount;
+            payment.CheckOut = checkout;
+            payment.PaymentMethod = paymentMethod;
+
+            return payment;
+
+        }
+
     }
 }
 
@@ -628,9 +859,6 @@ namespace Webbshop
 
 
 
-
-// go through all the try catches and see if they are correct 
-// understand how to use the try catch blocks propperly 
 // continue with the checkout / payment query 
 // start doing admin query but do them with async 
 // then focus in making mongodb 

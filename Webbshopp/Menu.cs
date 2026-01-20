@@ -207,7 +207,7 @@ namespace Webbshop
         public static void CustomerCategories()
         {
             Console.Clear();
-           using(var db = new MyAppContext())
+           using(var db = new Connections.MyAppContext())
             {
                 List<Category> categories = DapperQueries.GetCategories();
 
@@ -247,7 +247,7 @@ namespace Webbshop
         {
             Console.Clear();
 
-            using(var db = new MyAppContext())
+            using(var db = new Connections.MyAppContext())
             {
                 List<Category> categories = DapperQueries.GetCategories(); // gets the items from dapper querry into a list 
 

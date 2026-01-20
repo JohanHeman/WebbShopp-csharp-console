@@ -4,8 +4,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Webbshop.Models;
 
-namespace Webbshop.Models
+namespace Webbshop.Connections
 {
     internal class MyAppContext : DbContext
     {
