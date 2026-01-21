@@ -31,18 +31,25 @@ namespace Webbshop.Queries
 
                 Window window = Helpers.ShowCategories(categories);
                 window.Draw();
-                foreach (var c in categories)
-                {
-                    Console.WriteLine($"{c.Id}: {c.Name}");
-                }
 
-                // use switch statement for cases here 
-                Console.ReadKey();
+                ConsoleKeyInfo key = Console.ReadKey(true);
+
+                if(int.TryParse(key.KeyChar.ToString(), out int input))
+                {
+                    if (categories.Any(c => c.Id == input))
+                    {
+                        NavigationQueries.ShowCategory(input);
+                    }
+                    else
+                    {
+                        Console.WriteLine("No category with that Id.");
+                    }
+                }
+                else
+                {
+                    Console.WriteLine("Not a valid input");
+                }
             }
         }
-
-
-
-
     }
 }

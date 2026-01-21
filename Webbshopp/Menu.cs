@@ -12,17 +12,8 @@ namespace Webbshop
 {
     internal class Menu
     {
-        public enum adminCustomerEnums
-        {
-            // no add customer here, because the customers are added when they are doing their orders. 
-            // what infor should admin be able to edit for the customer ? 
-            Change_customer_info = 1,
-            Order_history
-        }
 
 
-
-            
         public static void StartMenu()
         {
             while (true)
@@ -171,9 +162,6 @@ namespace Webbshop
 
         }
 
-
-
-
         public static void ProductAdmin()
         {
             Console.Clear();
@@ -186,15 +174,6 @@ namespace Webbshop
 
             Console.ReadKey(true);
         }
-
-
-
-
-
-
-
-
-
 
         public static void CustomerCategories()
         {
@@ -219,16 +198,13 @@ namespace Webbshop
                         Console.WriteLine("No category with that Id.");
                     }
                 }
+                else
+                {
+                    Console.WriteLine("Not a valid input");
+                }
                 
             }
-
-            
         }
-
-
-
-
-
 
         public static void ShopMenu()
         {
