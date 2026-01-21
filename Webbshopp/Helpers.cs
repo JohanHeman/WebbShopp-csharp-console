@@ -33,6 +33,7 @@ namespace Webbshop
 
         public static Window ShowCategories(List<Category> cList)
         {
+            Console.Clear();
             cList = DapperQueries.GetCategories();
             Console.Clear();
 

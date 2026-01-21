@@ -14,7 +14,7 @@ namespace Webbshop
     {
 
 
-        public static void StartMenu()
+        public static async Task StartMenu()
         {
             while (true)
             {
@@ -58,7 +58,7 @@ namespace Webbshop
                                 CustomerMenu();
                                 break;
                             case Enums.HomeEnums.Admin_menu:
-                                AdminMenu();
+                                await AdminMenu();
                                 break;
 
                         }
@@ -119,7 +119,7 @@ namespace Webbshop
 
         }
 
-        public static void AdminMenu()
+        public static async Task AdminMenu()
         {
             while(true)
             {
@@ -134,13 +134,9 @@ namespace Webbshop
                 {
                     switch ((Enums.adminEnums)input)
                     {
-                        case Enums.adminEnums.Product_management:
-                            ProductAdmin();
-                            break;
                         case Enums.adminEnums.Product_categories:
-                           AdminQueries.AdminCategories();
+                           await AdminQueries.AdminCategories();
                             break;
-
                         case Enums.adminEnums.Customer_management:
                             AdminQueries.AdminCustomer();
                             break;
@@ -160,19 +156,6 @@ namespace Webbshop
                 }
             }
 
-        }
-
-        public static void ProductAdmin()
-        {
-            Console.Clear();
-            List<string> productList = Helpers.EnumsToLists(typeof(Enums.productEnums));
-
-            var window = new Window("AdminMenu", 2, 0, productList);
-            window.Draw();
-
-            // input for the enums here
-
-            Console.ReadKey(true);
         }
 
         public static void CustomerCategories()

@@ -24,8 +24,7 @@ namespace Webbshop
 
         public enum adminEnums
         {
-            Product_management = 1,
-            Product_categories,
+            Product_categories = 1,
             Customer_management,
             Statistics,
             Home
@@ -53,5 +52,16 @@ namespace Webbshop
             Delete_customer,
             Order_history
         }
+
+        public enum AdminProductEnums
+        {
+            name = 1,
+            info,
+            price,
+            category,
+            supplier,
+            instock
+        }
+
     }
 }
