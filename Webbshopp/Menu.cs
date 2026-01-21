@@ -5,6 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Webbshop.Models;
+using Webbshop.Queries;
 using WindowDemo;
 
 namespace Webbshop
@@ -111,7 +112,7 @@ namespace Webbshop
                             ShopMenu();
                             break;
                         case Enums.customerEnums.Shoppingcart:
-                            Queries.ShowCart();
+                            Queries.CartQueries.ShowCart();
                             break;
                     }
                 }
@@ -146,11 +147,11 @@ namespace Webbshop
                             ProductAdmin();
                             break;
                         case Enums.adminEnums.Product_categories:
-                            AdminCategories();
+                           AdminQueries.AdminCategories();
                             break;
 
                         case Enums.adminEnums.Customer_management:
-                            AdminCustomer();
+                            AdminQueries.AdminCustomer();
                             break;
                         case Enums.adminEnums.Home:
                             Console.WriteLine("Returning to home...");
@@ -188,21 +189,12 @@ namespace Webbshop
 
 
 
-        public static void AdminCustomer()
-        {
-            Console.Clear();
-            List<string> productList = Helpers.EnumsToLists(typeof(adminCustomerEnums));
-            var window = new Window("AdminMenu", 2, 0, productList);
-            window.Draw();
-        }
 
 
 
 
-        public static void AdminStatistics()
-        {
-            // show statistics for admin, querries etc
-        }
+
+
 
         public static void CustomerCategories()
         {
@@ -211,26 +203,16 @@ namespace Webbshop
             {
                 List<Category> categories = DapperQueries.GetCategories();
 
-                Console.Clear();
 
-                List<string> windowList = new List<string>();
-
-                foreach (var c in categories)
-                {
-                    windowList.Add( c.Id + ": " + c.Name);
-                }
-
-                var window = new Window("Categories", 1, 0, windowList);
+                Window window = Helpers.ShowCategories(categories);
                 window.Draw();
-
-
                 ConsoleKeyInfo key = Console.ReadKey(true);
 
                 if(int.TryParse(key.KeyChar.ToString(), out int input))
                 {
                     if(categories.Any(c => c.Id == input))
                     {
-                        Queries.ShowCategory(input);
+                        NavigationQueries.ShowCategory(input);
                     }
                     else
                     {
@@ -243,25 +225,7 @@ namespace Webbshop
             
         }
 
-        public static void AdminCategories()
-        {
-            Console.Clear();
 
-            using(var db = new Connections.MyAppContext())
-            {
-                List<Category> categories = DapperQueries.GetCategories(); // gets the items from dapper querry into a list 
-
-                Console.Clear();
-
-                foreach (var c in categories)
-                {
-                    Console.WriteLine($"{c.Id}: {c.Name}");
-                }
-
-                // use switch statement for cases here 
-                Console.ReadKey();
-            }
-        }
 
 
 
@@ -289,10 +253,8 @@ namespace Webbshop
                         case Enums.shopEnums.Back:
                             return;
                         case Enums.shopEnums.Search:
-                            Queries.SearchBooks();
+                            NavigationQueries.SearchBooks();
                             break;
-
-
                     }
                 }
                 else
@@ -305,9 +267,5 @@ namespace Webbshop
                 }
             }
         }
-
-        // cart menu in queries.
-
-
     }
 }

@@ -3,6 +3,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Webbshop.Models;
+using Webbshop.Queries;
+using WindowDemo;
 
 namespace Webbshop
 {
@@ -27,5 +30,24 @@ namespace Webbshop
             }
             return theList;   
         }
+
+        public static Window ShowCategories(List<Category> cList)
+        {
+            cList = DapperQueries.GetCategories();
+            Console.Clear();
+
+            List<string> windowList = new List<string>();
+
+            foreach (var c in cList)
+            {
+                windowList.Add(c.Id + ": " + c.Name);
+            }
+
+            var window = new Window("Categories", 1, 0, windowList);
+            return window;
+        }
+
+
+
     }
 }

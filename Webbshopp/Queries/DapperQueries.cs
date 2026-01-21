@@ -12,7 +12,7 @@ using System.Threading.Tasks;
 using Webbshop.Models;
 using static Microsoft.EntityFrameworkCore.DbLoggerCategory.Database;
 
-namespace Webbshop
+namespace Webbshop.Queries
 {
     internal class DapperQueries
     {
