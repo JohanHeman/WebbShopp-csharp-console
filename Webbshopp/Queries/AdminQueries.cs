@@ -157,13 +157,13 @@ namespace Webbshop.Queries
             {
                 var book = await db.Products.FirstOrDefaultAsync(b => b.Id == id);
 
-                Console.WriteLine("What do you want to change for the book? ");
+                
 
-                List<string> options = Helpers.EnumsToLists(typeof(Enums.customerEnums));
+                List<string> options = Helpers.EnumsToLists(typeof(Enums.AdminProductEnums));
 
                 var window = new Window("Options", 2, 0, options);
                 window.Draw();
-
+                Console.WriteLine("What do you want to change for the book? ");
                 ConsoleKeyInfo key = Console.ReadKey(true);
 
                 if(int.TryParse(key.KeyChar.ToString(), out int input))
@@ -171,7 +171,7 @@ namespace Webbshop.Queries
                     switch ((Enums.AdminProductEnums)input)
                     {
                         case Enums.AdminProductEnums.name:
-                            //function to change product name 
+                            await ChangeName(db, id); 
                             break;
                         case Enums.AdminProductEnums.info:
                             //function to change info
@@ -198,10 +198,36 @@ namespace Webbshop.Queries
                 Console.WriteLine(ex.StackTrace);
             }
 
-            
+        }
 
 
+        public static async Task ChangeName(MyAppContext db, int id)
+        {
+            Console.Clear();
+            Console.WriteLine("Enter the new name for the book");
+            string answer = Console.ReadLine();
+            try
+            {
+                var book = await db.Products.FirstOrDefaultAsync(b => b.Id == id);
+                if(answer != null)
+                {
+                    book.Name = answer;
+                    db.SaveChanges();
+                }
+                else
+                {
+                    Console.WriteLine("Not a valid name returning to menu");
+                }
+            }
+
+            catch(DbUpdateException ex)
+            {
+                Console.WriteLine("SOmething went wrong ");
+                Console.WriteLine(ex.StackTrace);
+            }
 
         }
+
+
     }
 }
