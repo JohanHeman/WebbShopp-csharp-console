@@ -185,7 +185,7 @@ namespace Webbshop.Queries
                             await ChangePriceProduct(db, id);
                             break;
                         case Enums.AdminProductEnums.category:
-                            // function to change the category
+                            await ChangeCategoryProduct(db, id);
                             break;
                     }
                 }
@@ -467,5 +467,44 @@ namespace Webbshop.Queries
 
         }
 
+
+        public static async Task ChangeCategoryProduct(MyAppContext db, int id)
+        {
+            Console.Clear();
+
+            var book = await db.Products.FirstOrDefaultAsync(p => p.Id == id);
+
+            List<Category> categories = DapperQueries.GetCategories(); 
+
+            Window window = Helpers.ShowCategories(categories);
+            window.Draw();
+
+            while(true)
+            {
+                Console.WriteLine("Choose a category to put the book in");
+
+                string input = Console.ReadLine();
+
+                if(input == "q")
+                {
+                    Console.WriteLine("Exiting...");
+                    await Task.Delay(1000);
+                    break;
+                }
+
+                if(int.TryParse(input, out int catId))
+                {
+                    if(categories.Any(c=> c.Id == catId))
+                    {
+                        var category = await db.Categories.FirstOrDefaultAsync(c => c.Id == catId);
+                        book.Category = category;
+                        await db.SaveChangesAsync();
+                        Console.WriteLine("The category successfully updated.");
+                        Console.ReadKey(true);
+                        break;
+                    }
+                }
+            }
+        }
     }
 }
