@@ -179,7 +179,7 @@ namespace Webbshop.Queries
                             await ChangeSupplierBook(db, id);
                             break;
                         case Enums.AdminProductEnums.instock:
-                            //function to change in stock on product 
+                            await InStockProduct(db, id); 
                             break;
                         case Enums.AdminProductEnums.price:
                             //function to change price on the item
@@ -388,6 +388,53 @@ namespace Webbshop.Queries
                     }
                 }
             }
+        }
+
+        public static async Task InStockProduct(MyAppContext db, int id)
+        {
+            var book = await db.Products.FirstOrDefaultAsync(p => p.Id == id);
+
+            Console.WriteLine("Currently we have " + book.InStock + "in stock");
+
+            Console.Write("Would you like to change it ? y/n");
+
+            ConsoleKeyInfo key = Console.ReadKey(true);
+            try
+            {
+                if (key.KeyChar == 'y')
+                {
+                    Console.Clear();
+                    while(true)
+                    {
+                        Console.WriteLine("Enter the new amount ");
+                        if(int.TryParse(Console.ReadLine(), out int num))
+                        {
+                            book.InStock = num;
+                            await db.SaveChangesAsync();
+                            Console.WriteLine("Updated succeesfully");
+                            Console.ReadKey(true);
+                            break;
+                        }
+                        else
+                        {
+                            Console.WriteLine("Not a valid number please try again.");
+                            continue;
+                        }
+                    }
+                }
+                else
+                {
+                    Console.WriteLine("ok returning back");
+                    await Task.Delay(1000);
+                }
+
+            }   
+            catch(DbUpdateException ex)
+            {
+                Console.WriteLine("Somethjing went wrong");
+                Console.WriteLine(ex.StackTrace);
+            }
+
         }
     }
 }
