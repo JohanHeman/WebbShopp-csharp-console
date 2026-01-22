@@ -182,7 +182,7 @@ namespace Webbshop.Queries
                             await InStockProduct(db, id); 
                             break;
                         case Enums.AdminProductEnums.price:
-                            //function to change price on the item
+                            await ChangePriceProduct(db, id);
                             break;
                         case Enums.AdminProductEnums.category:
                             // function to change the category
@@ -436,5 +436,36 @@ namespace Webbshop.Queries
             }
 
         }
+
+        public static async Task ChangePriceProduct(MyAppContext db, int id)
+        {
+            Console.Clear();
+
+            var book = await db.Products.FirstOrDefaultAsync(p => p.Id == id);
+            Console.WriteLine("The current price is " + book.Price);
+
+            while(true)
+            {
+                Console.WriteLine("What would you like to change it too? ");
+
+                if (decimal.TryParse(Console.ReadLine(), out decimal price))
+                {
+                    book.Price = price;
+                    await db.SaveChangesAsync();
+                    Console.WriteLine("Successfully updated the price.");
+                    Console.ReadKey(true);
+                    break;
+                }
+                else
+                {
+                    Console.WriteLine("invalid input");
+                    continue;
+                }
+            }
+
+
+
+        }
+
     }
 }
