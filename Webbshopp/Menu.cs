@@ -144,6 +144,9 @@ namespace Webbshop
                             Console.WriteLine("Returning to home...");
                             Thread.Sleep(1000);
                             return;
+                        case Enums.adminEnums.supplier:
+                            await AdminQueries.ShowSuppliers();
+                            break;
                     }
                 }
                 else

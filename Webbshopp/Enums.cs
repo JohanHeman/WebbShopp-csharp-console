@@ -27,6 +27,7 @@ namespace Webbshop
             Product_categories = 1,
             Customer_management,
             Statistics,
+            supplier,
             Home
         }
 
@@ -59,8 +60,8 @@ namespace Webbshop
             info,
             price,
             category,
-            supplier,
-            instock
+            instock,
+            change_supplier
         }
 
     }

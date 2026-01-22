@@ -118,7 +118,7 @@ namespace Webbshop.Queries
 
                 if(book != null)
                 {
-                    List<string> bookWindow = new List<string> { book.Information, book.Price.ToString() + "$" + " In stock: " + book.InStock + " 'c' ro change product information. and 'b' to go back" };
+                    List<string> bookWindow = new List<string> { book.Information, book.Price.ToString() + "$" + " In stock: " + book.InStock + " 'c' ro change product information. Any oyher key to go back" };
                     var window = new Window(book.Name, 1, 1, bookWindow);
                     window.Draw();
                     ConsoleKeyInfo key = Console.ReadKey(true);
@@ -157,8 +157,6 @@ namespace Webbshop.Queries
             {
                 var book = await db.Products.FirstOrDefaultAsync(b => b.Id == id);
 
-                
-
                 List<string> options = Helpers.EnumsToLists(typeof(Enums.AdminProductEnums));
 
                 var window = new Window("Options", 2, 0, options);
@@ -174,10 +172,10 @@ namespace Webbshop.Queries
                             await ChangeName(db, id); 
                             break;
                         case Enums.AdminProductEnums.info:
-                            //function to change info
+                            await ChangeInfo(db, id);
                             break;
-                        case Enums.AdminProductEnums.supplier:
-                            //function to change supplier 
+                        case Enums.AdminProductEnums.change_supplier:
+                            //function to change supplier for the book
                             break;
                         case Enums.AdminProductEnums.instock:
                             //function to change in stock on product 
@@ -204,7 +202,7 @@ namespace Webbshop.Queries
         public static async Task ChangeName(MyAppContext db, int id)
         {
             Console.Clear();
-            Console.WriteLine("Enter the new name for the book");
+            Console.Write("Enter the new name for the book");
             string answer = Console.ReadLine();
             try
             {
@@ -225,9 +223,127 @@ namespace Webbshop.Queries
                 Console.WriteLine("SOmething went wrong ");
                 Console.WriteLine(ex.StackTrace);
             }
+        }
 
+        public static async Task ChangeInfo(MyAppContext db, int id)
+        {
+            Console.Clear();
+            Console.Write("Enter what the new information should be: ");
+            string answer = Console.ReadLine();
+
+            try
+            {
+                var book = await db.Products.FirstOrDefaultAsync(b => b.Id == id);
+                if(answer != null)
+                {
+                    book.Information = answer;
+                    db.SaveChanges();
+                }
+            }
+            catch (DbUpdateException ex)
+            {
+                Console.WriteLine("SOmething went wrong ");
+                Console.WriteLine(ex.StackTrace);
+            }
         }
 
 
+        public static async Task ShowSuppliers()
+        {
+            Console.Clear();
+            using(var db = new MyAppContext())
+            {
+                var theList = await db.Suppliers.ToListAsync();
+
+                List<string> windowList = new();
+                foreach (var item in theList)
+                {
+                    windowList.Add(item.Id + " :" + item.Name.ToString());
+                }
+
+                var window = new Window("Suppliers", 0, 2, windowList);
+
+                while (true)
+                {
+                    window.Draw();
+
+                    if (int.TryParse(Console.ReadLine(), out int input))
+                    {
+                        if (theList.Any(s => s.Id == input))
+                        {
+                            Supplier supplier = await db.Suppliers.FirstOrDefaultAsync(s => s.Id == input);
+                            await ChangeSupplier(db, supplier);
+                        }
+                        else
+                        {
+                            Console.WriteLine("No supplier found with that id");
+                            continue;
+                        }
+                    }
+                }
+            }
+        }
+
+
+        public static async Task ChangeSupplier(MyAppContext db, Supplier supplier)
+        {
+            Console.WriteLine("What do you want to do? ");
+            Console.WriteLine("'n' for updating name\n'd' for deleting supplier");
+
+
+
+            ConsoleKeyInfo key = Console.ReadKey(true);
+            switch (key.KeyChar)
+            {
+                case 'n':
+                    await ChangeNameSupplier(db, supplier);
+                    break;
+                case 'd':
+                    await DeleteSupplier(db, supplier);
+                    break;
+            }
+        }
+
+
+        public static async Task ChangeNameSupplier(MyAppContext db, Supplier supplier)
+        {
+            Console.Clear();
+            try
+            {
+                Console.Write("Enter the name you want the supplier to have: ");
+                string name = Console.ReadLine();
+                if(name != null)
+                {
+                    supplier.Name = name;
+                    db.SaveChanges();
+                }
+                else
+                {
+                    Console.WriteLine("Name cant be null. Going back to menu.");
+                }
+            }
+            catch(DbUpdateException ex)
+            {
+                Console.WriteLine("Something went wrong");
+                Console.WriteLine(ex.StackTrace);
+            }
+        }
+
+
+        public static async Task DeleteSupplier(MyAppContext db, Supplier supplier)
+        {
+            try
+            {
+                db.Suppliers.Remove(supplier);
+                db.SaveChanges();
+                Console.WriteLine("Succesfully deleted.");
+            }
+            catch(DbUpdateException ex)
+            {
+                Console.WriteLine("Something went wrong");
+                Console.WriteLine(ex.StackTrace);
+            }
+            Console.ReadKey(true);
+        }
     }
 }
