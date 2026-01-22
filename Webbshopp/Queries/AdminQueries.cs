@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.Identity.Client;
 using System;
 using System.Collections.Generic;
@@ -175,7 +176,7 @@ namespace Webbshop.Queries
                             await ChangeInfo(db, id);
                             break;
                         case Enums.AdminProductEnums.change_supplier:
-                            //function to change supplier for the book
+                            await ChangeSupplierBook(db, id);
                             break;
                         case Enums.AdminProductEnums.instock:
                             //function to change in stock on product 
@@ -210,7 +211,7 @@ namespace Webbshop.Queries
                 if(answer != null)
                 {
                     book.Name = answer;
-                    db.SaveChanges();
+                    await db.SaveChangesAsync();
                 }
                 else
                 {
@@ -237,7 +238,7 @@ namespace Webbshop.Queries
                 if(answer != null)
                 {
                     book.Information = answer;
-                    db.SaveChanges();
+                    await db.SaveChangesAsync();
                 }
             }
             catch (DbUpdateException ex)
@@ -253,15 +254,8 @@ namespace Webbshop.Queries
             Console.Clear();
             using(var db = new MyAppContext())
             {
-                var theList = await db.Suppliers.ToListAsync();
-
-                List<string> windowList = new();
-                foreach (var item in theList)
-                {
-                    windowList.Add(item.Id + " :" + item.Name.ToString());
-                }
-
-                var window = new Window("Suppliers", 0, 2, windowList);
+                var suppliers = await db.Suppliers.ToListAsync();
+                var window = GetSuppliers(db, suppliers);
 
                 while (true)
                 {
@@ -269,7 +263,7 @@ namespace Webbshop.Queries
 
                     if (int.TryParse(Console.ReadLine(), out int input))
                     {
-                        if (theList.Any(s => s.Id == input))
+                        if (suppliers.Any(s => s.Id == input))
                         {
                             Supplier supplier = await db.Suppliers.FirstOrDefaultAsync(s => s.Id == input);
                             await ChangeSupplier(db, supplier);
@@ -315,7 +309,7 @@ namespace Webbshop.Queries
                 if(name != null)
                 {
                     supplier.Name = name;
-                    db.SaveChanges();
+                    await db.SaveChangesAsync();
                 }
                 else
                 {
@@ -335,7 +329,7 @@ namespace Webbshop.Queries
             try
             {
                 db.Suppliers.Remove(supplier);
-                db.SaveChanges();
+                await db.SaveChangesAsync();
                 Console.WriteLine("Succesfully deleted.");
             }
             catch(DbUpdateException ex)
@@ -344,6 +338,56 @@ namespace Webbshop.Queries
                 Console.WriteLine(ex.StackTrace);
             }
             Console.ReadKey(true);
+        }
+
+
+
+        public static Window GetSuppliers(MyAppContext db, List<Supplier> suppliers)
+        {
+            Window window;
+
+            List<string> windowList = new();
+            foreach (var item in suppliers)
+            {
+                windowList.Add(item.Id + " :" + item.Name.ToString());
+            }
+
+            window = new Window("Suppliers", 0, 2, windowList);
+            
+            return window;
+        }
+            
+        public static async Task ChangeSupplierBook(MyAppContext db, int id)
+        {
+            Console.Clear();
+            var suppliers = await db.Suppliers.ToListAsync();
+            var window = GetSuppliers(db, suppliers);
+            var book = await db.Products.FirstOrDefaultAsync(p => p.Id == id);
+            while(true)
+            {
+                window.Draw();
+                Console.Write("Choose the new supplier for the book: press any key to quit");
+                if(int.TryParse(Console.ReadLine(), out int input))
+                {
+                    if(suppliers.Any(s => s.Id == input))
+                    {
+                        try
+                        {
+                            book.Supplier = await db.Suppliers.FirstOrDefaultAsync(s => s.Id == input);
+                            await db.SaveChangesAsync();
+                            Console.WriteLine("Succesfully changed the supplier");
+                            Console.Clear();
+                            break;
+                        }
+                        catch(DbUpdateException ex)
+                        {
+                            Console.WriteLine("Something went wrong");
+                            Console.WriteLine(ex.StackTrace);
+                            break;
+                        }
+                    }
+                }
+            }
         }
     }
 }
