@@ -187,6 +187,9 @@ namespace Webbshop.Queries
                         case Enums.AdminProductEnums.category:
                             await ChangeCategoryProduct(db, id);
                             break;
+                        case Enums.AdminProductEnums.Delete_product:
+                            DeleteProduct(db, id);
+                            break;
                     }
                 }
 
@@ -203,52 +206,79 @@ namespace Webbshop.Queries
         public static async Task ChangeName(MyAppContext db, int id)
         {
             Console.Clear();
-            Console.Write("Enter the new name for the book");
-            string answer = Console.ReadLine();
-            try
+            while(true)
             {
-                var book = await db.Products.FirstOrDefaultAsync(b => b.Id == id);
-                if(answer != null)
+                Console.Write("Enter the new name for the book");
+                string answer = Console.ReadLine();
+                if(answer == "q")
                 {
-                    book.Name = answer;
-                    await db.SaveChangesAsync();
+                    Console.WriteLine("Exiting...");
+                    await Task.Delay(1000);
+                    break;
                 }
-                else
-                {
-                    Console.WriteLine("Not a valid name returning to menu");
-                }
-            }
 
-            catch(DbUpdateException ex)
-            {
-                Console.WriteLine("SOmething went wrong ");
-                Console.WriteLine(ex.StackTrace);
+                try
+                {
+                    var book = await db.Products.FirstOrDefaultAsync(b => b.Id == id);
+                    if (answer != null)
+                    {
+                        book.Name = answer;
+                        await db.SaveChangesAsync();
+                        break;
+                    }
+                    else
+                    {
+                        Console.WriteLine("Not a valid name");
+                        continue;
+                    }
+                }
+
+                catch (DbUpdateException ex)
+                {
+                    Console.WriteLine("SOmething went wrong ");
+                    Console.WriteLine(ex.StackTrace);
+                }
             }
+           
         }
 
         public static async Task ChangeInfo(MyAppContext db, int id)
         {
             Console.Clear();
-            Console.Write("Enter what the new information should be: ");
-            string answer = Console.ReadLine();
 
-            try
+            while (true)
             {
-                var book = await db.Products.FirstOrDefaultAsync(b => b.Id == id);
-                if(answer != null)
+                Console.Write("Enter what the new information should be: ");
+                string answer = Console.ReadLine();
+
+                if(answer != "q")
                 {
-                    book.Information = answer;
-                    await db.SaveChangesAsync();
+                    try
+                    {
+                        var book = await db.Products.FirstOrDefaultAsync(b => b.Id == id);
+                        if (answer != null)
+                        {
+                            book.Information = answer;
+                            await db.SaveChangesAsync();
+                        }
+                    }
+                    catch (DbUpdateException ex)
+                    {
+                        Console.WriteLine("SOmething went wrong ");
+                        Console.WriteLine(ex.StackTrace);
+                    }
                 }
-            }
-            catch (DbUpdateException ex)
-            {
-                Console.WriteLine("SOmething went wrong ");
-                Console.WriteLine(ex.StackTrace);
+                else
+                {
+                    break;
+                }
+
             }
         }
 
 
+
+        
         public static async Task ShowSuppliers()
         {
             Console.Clear();
@@ -259,31 +289,41 @@ namespace Webbshop.Queries
 
                 while (true)
                 {
+                    Console.Clear();
                     window.Draw();
-
-                    if (int.TryParse(Console.ReadLine(), out int input))
+                    Console.WriteLine("Choose a supplier or press q to quit");
+                    string answer = Console.ReadLine();
+                    if(answer != "q")
                     {
-                        if (suppliers.Any(s => s.Id == input))
+                        if (int.TryParse(answer, out int input))
                         {
-                            Supplier supplier = await db.Suppliers.FirstOrDefaultAsync(s => s.Id == input);
-                            await ChangeSupplier(db, supplier);
+                            if (suppliers.Any(s => s.Id == input))
+                            {
+                                Supplier supplier = await db.Suppliers.FirstOrDefaultAsync(s => s.Id == input);
+                                await ChangeSupplier(db, supplier);
+                                break;
+                            }
                         }
                         else
                         {
-                            Console.WriteLine("No supplier found with that id");
+                            Console.WriteLine("No supplier found with that id press 'q' to quit");
+                            Console.ReadKey(true);
                             continue;
                         }
+                    }
+                    else
+                    {
+                        break;
                     }
                 }
             }
         }
 
-
+        // IN THIS FUNCTION ADD OPTION TO ADD SUPPLIER
         public static async Task ChangeSupplier(MyAppContext db, Supplier supplier)
         {
             Console.WriteLine("What do you want to do? ");
             Console.WriteLine("'n' for updating name\n'd' for deleting supplier");
-
 
 
             ConsoleKeyInfo key = Console.ReadKey(true);
@@ -506,5 +546,24 @@ namespace Webbshop.Queries
                 }
             }
         }
+
+        public static void DeleteProduct(MyAppContext db, int id)
+        {
+            var book = db.Products.FirstOrDefault(p => p.Id == id);
+
+            try
+            {
+                db.Products.Remove(book);
+                db.SaveChanges();
+                Console.WriteLine("Successfully deleted product.");
+                Console.ReadKey(true);
+            }
+            catch(DbUpdateException ex)
+            {
+                Console.WriteLine("Something went wrong..");
+                Console.WriteLine(ex.StackTrace);
+            }
+        }
+
     }
 }

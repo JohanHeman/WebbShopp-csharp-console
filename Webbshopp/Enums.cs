@@ -61,7 +61,8 @@ namespace Webbshop
             price,
             category,
             instock,
-            change_supplier
+            change_supplier,
+            Delete_product
         }
 
     }
