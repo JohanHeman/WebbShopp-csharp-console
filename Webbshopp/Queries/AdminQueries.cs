@@ -276,9 +276,6 @@ namespace Webbshop.Queries
             }
         }
 
-
-
-        
         public static async Task ShowSuppliers()
         {
             Console.Clear();
@@ -319,7 +316,7 @@ namespace Webbshop.Queries
             }
         }
 
-        // IN THIS FUNCTION ADD OPTION TO ADD SUPPLIER
+        
         public static async Task ChangeSupplier(MyAppContext db, Supplier supplier)
         {
             Console.WriteLine("What do you want to do? ");
@@ -366,11 +363,44 @@ namespace Webbshop.Queries
 
         public static async Task DeleteSupplier(MyAppContext db, Supplier supplier)
         {
+            Console.Clear();
             try
             {
-                db.Suppliers.Remove(supplier);
-                await db.SaveChangesAsync();
-                Console.WriteLine("Succesfully deleted.");
+                var books = await db.Products.Where(b => b.SupplierId == supplier.Id).ToListAsync();
+
+                var suppliers = await db.Suppliers.ToListAsync();
+                var window = GetSuppliers(db, suppliers);
+                while(true)
+                {
+                    Console.Clear();
+                    window.Draw();
+
+                    Console.WriteLine("Choose a supplier to move the products from the removed supplier to. press 'q' to quit");
+                    string input = Console.ReadLine();
+                    if (input == "q") break;
+
+                    if(int.TryParse(input, out int id))
+                    {
+                        if(id == supplier.Id)
+                        {
+                            Console.WriteLine("You cant choose the supplier your about to delete.");
+                            Console.ReadKey(true);
+                            continue;
+                        }
+                        var newSupplier = await db.Suppliers.FirstOrDefaultAsync(s => s.Id == id);
+                        if (newSupplier != null)
+                        {
+                            foreach(var item in books)
+                            {
+                                item.Supplier = newSupplier;
+                            }
+                            db.Suppliers.Remove(supplier);
+                            await db.SaveChangesAsync();
+                            Console.WriteLine("Succesfully deleted.");
+                            break;
+                        }
+                    }
+                }
             }
             catch(DbUpdateException ex)
             {
@@ -379,8 +409,6 @@ namespace Webbshop.Queries
             }
             Console.ReadKey(true);
         }
-
-
 
         public static Window GetSuppliers(MyAppContext db, List<Supplier> suppliers)
         {
@@ -564,6 +592,16 @@ namespace Webbshop.Queries
                 Console.WriteLine(ex.StackTrace);
             }
         }
+
+
+        // create function to delete categories as its own option
+        // show categories, ask what category to delete 
+        // delete the category
+
+        // add option to product where admin can change product to isdisplayed on the front page 
+        // if there is allready 3 of them, show all 3, and ask which one ro replace, or exit 
+        // then swap them by setting isdisplayed to 1 or 0 on the items.
+
 
     }
 }
