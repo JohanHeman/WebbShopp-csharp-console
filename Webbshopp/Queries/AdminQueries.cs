@@ -1,6 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions;
+using Microsoft.EntityFrameworkCore.Storage.Internal;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Microsoft.Identity.Client;
 using System;
@@ -97,7 +98,7 @@ namespace Webbshop.Queries
                 {
                     Console.Clear();
                     Console.WriteLine("Enter the name of the new category or press 'q' to quit");
-                    string input = Console.ReadLine();
+                    string? input = Console.ReadLine();
                     if (input == "q")
                     {
                         Console.Clear();
@@ -106,10 +107,12 @@ namespace Webbshop.Queries
 
                     if (!string.IsNullOrWhiteSpace(input) && !db.Categories.Any(c => c.Name == input))
                     {
-                        Category category = new();
-                        category.Name = input;
+                        Category category = new Category
+                        {
+                            Name = input
+                        };
 
-                        db.Categories.Add(category);
+                        await db.Categories.AddAsync(category);
                         await db.SaveChangesAsync();
 
                         Console.WriteLine("Succesfully added category");
@@ -120,7 +123,6 @@ namespace Webbshop.Queries
                         Console.WriteLine("Not a valid input. please try again");
                     }
                 }
-
             }
             catch(DbUpdateException ex)
             {
@@ -499,7 +501,7 @@ namespace Webbshop.Queries
         public static async Task ChangeSupplier(MyAppContext db, Supplier supplier)
         {
             Console.WriteLine("What do you want to do? ");
-            Console.WriteLine("'n' for updating name\n'd' for deleting supplier");
+            Console.WriteLine("'n' for updating name\n'd' for deleting supplier \n'a' for adding a new supplier");
 
 
             ConsoleKeyInfo key = Console.ReadKey(true);
@@ -511,8 +513,49 @@ namespace Webbshop.Queries
                 case 'd':
                     await DeleteSupplier(db, supplier);
                     break;
+                case 'a':
+                    //function to add supplier
+                    break;
             }
         }
+
+        public static async Task AddSupplier(MyAppContext db)
+        {
+
+            try
+            {
+                while(true)
+                {
+                    Console.Clear();
+                    Console.WriteLine("Enter the name of the supplier or press 'q' to quit");
+                    string? input = Console.ReadLine();
+
+                    if (input == "q")
+                    {
+                        Console.Clear();
+                        break;
+                    }
+
+                    if (!string.IsNullOrWhiteSpace(input) && !db.Suppliers.Any(c => c.Name == input))
+                    {
+                        Supplier supplier = new Supplier
+                        {
+                            Name = input
+                        };
+                        await db.Suppliers.AddAsync(supplier);
+                        await db.SaveChangesAsync();
+                        Console.WriteLine("Succesfully added new supplier");
+                        break;
+                    }
+                }
+            }
+            catch(DbUpdateException ex)
+            {
+                Console.WriteLine("Something went wrong");
+                Console.WriteLine(ex.StackTrace);
+            }
+        }
+
 
 
         public static async Task ChangeNameSupplier(MyAppContext db, Supplier supplier)
