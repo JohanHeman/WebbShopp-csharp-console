@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Data.Common;
 using System.Linq;
 using System.Reflection.Metadata.Ecma335;
+using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
 using Webbshop.Connections;
@@ -622,7 +623,6 @@ namespace Webbshop.Queries
             }
 
             Console.ReadKey(true);
-
         }
 
         public static async Task AddProduct() // long function but all it does is ask input to create a new product
@@ -643,36 +643,37 @@ namespace Webbshop.Queries
                             return;
                         }
 
-                        if (name != null)
+                        if (!string.IsNullOrWhiteSpace(name))
                         {
                             book.Name = name;
                             break;
                         }
 
                         Console.WriteLine("The book cant be null");
+                        Console.ReadKey(true);
                     }
 
                     while (true)
                     {
                         Console.Clear();
                         Console.Write("Enter the Price of the book");
-                        string answer = Console.ReadLine();
+                        string? answer = Console.ReadLine();
 
                         if (answer == "q")
                         {
                             return;
                         }
+                        if(!string.IsNullOrWhiteSpace(answer))
+                        {
+                            if (decimal.TryParse(answer, out decimal price))
+                            {
+                                book.Price = price;
+                                break;
+                            }
+                        }
 
-                        if (decimal.TryParse(answer, out decimal price))
-                        {
-                            book.Price = price;
-                            break;
-                        }
-                        else
-                        {
-                            Console.WriteLine("Must be a valid decimal value");
-                            continue;
-                        }
+                        Console.WriteLine("Must be a valid decimal value");
+                        Console.ReadKey(true);
                     }
 
                     while (true)
@@ -685,17 +686,18 @@ namespace Webbshop.Queries
                         {
                             return;
                         }
+                            if (!string.IsNullOrWhiteSpace(answer))
+                            {
+                                if (int.TryParse(answer, out int num))
+                            {
+                                book.InStock = num;
+                                break;
+                            }
+                        }
 
-                        if (int.TryParse(answer, out int num))
-                        {
-                            book.InStock = num;
-                            break;
-                        }
-                        else
-                        {
-                            Console.WriteLine("Must be a valid number");
-                            continue;
-                        }
+                        Console.WriteLine("Must be a valid number");
+                        Console.ReadKey(true);
+                        continue;
                     }
 
                     while (true)
@@ -709,27 +711,24 @@ namespace Webbshop.Queries
                             return;
                         }
 
-                        if (desc != null)
+                        if (!string.IsNullOrWhiteSpace(desc))
                         {
                             book.Information = desc;
                             break;
                         }
-                        else
-                        {
-                            Console.WriteLine("Cant be null");
-                            continue;
-                        }
 
+                        Console.WriteLine("Cant be null");
+                        Console.ReadKey(true);
+                        continue;
                     }
-
-                    List<Category> categories = DapperQueries.GetCategories();
-
-                    Window window = Helpers.ShowCategories(categories);
+                   
                     while (true)
                     {
+                        List<Category> categories = DapperQueries.GetCategories();
+                        Window window = Helpers.ShowCategories(categories);
                         Console.Clear();
                         window.Draw();
-                        Console.Write("Enter the category of the book by the id: ");
+                        Console.WriteLine("Enter the category of the book by the id 'n' to add a new category ");
 
                         string? answer = Console.ReadLine();
                         if (answer == "q")
@@ -737,7 +736,14 @@ namespace Webbshop.Queries
                             return;
                         }
 
-                        if (answer != null)
+                        if(answer == "n")
+                        {
+
+                            await AddCategory(db);
+                            continue;
+                        }
+
+                        if (!string.IsNullOrWhiteSpace(answer))
                         {
                             if (int.TryParse(answer, out int id))
                             {
@@ -750,52 +756,64 @@ namespace Webbshop.Queries
                                 else
                                 {
                                     Console.WriteLine("category cant be null");
+                                    Console.ReadKey(true);
                                     continue;
                                 }
                             }
-                            else
-                            {
-                                Console.WriteLine("Must be a valid id");
-                            }
+                            Console.WriteLine("Must be a valid id");
+                            Console.ReadKey(true);
+                            continue;
                         }
                     }
 
-                    var suppliers = await db.Suppliers.ToListAsync();
-                    var windowSuppliers = Helpers.GetSuppliers(db, suppliers);
-
                     while (true)
                     {
+                        var suppliers = await db.Suppliers.ToListAsync();
+                        var windowSuppliers = Helpers.GetSuppliers(db, suppliers);
                         Console.Clear();
                         windowSuppliers.Draw();
-                        Console.WriteLine("Who is the supplier of the book? ");
-                        string answer = Console.ReadLine();
+                        Console.WriteLine("Who is the supplier of the book? press 'n' to add new supplier");
+                        string? answer = Console.ReadLine();
                         if (answer == "q")
                         {
                             return;
                         }
+
+                        if(answer == "n")
+                        {
+                            await AdminSupplier.AddSupplier(db);
+                            continue;
+                        }
+
+                        if(!string.IsNullOrWhiteSpace(answer))
+                        {
+
+                        
                         if (int.TryParse(answer, out int id))
                         {
-                            var supplier = await db.Suppliers.FirstOrDefaultAsync(s => s.Id == id);
-                            if (supplier != null)
-                            {
-                                book.Supplier = supplier;
-                                break;
-                            }
-                            else
-                            {
-                                Console.WriteLine("Supplier cant be null");
+                                var supplier = await db.Suppliers.FirstOrDefaultAsync(s => s.Id == id);
+                                if (supplier != null)
+                                {
+                                    book.Supplier = supplier;
+                                    break;
+                                }
+                                else
+                                {
+                                    Console.WriteLine("Supplier cant be null");
+                                    Console.ReadKey(true);
+                                    continue;
+                                }
                             }
                         }
-                        else
-                        {
-                            Console.WriteLine("Id must be a valid number");
-                        }
+                        Console.WriteLine("Id must be a valid number");
+                        Console.ReadKey(true);
+                        continue;
                     }
 
                     while (true)
                     {
                         Console.Clear();
-                        Console.WriteLine("Who is the autohor of the book? ");
+                        Console.WriteLine("Who is the autohor of the book? press 'n' to add a new author");
 
                         var authors = await db.Authors.ToListAsync();
                         List<string> authorList = new List<string>();
@@ -812,23 +830,43 @@ namespace Webbshop.Queries
                             return;
                         }
 
+                        if(answer == "n")
+                        {
+                            Console.Clear();
+                            Console.WriteLine("What is the authors name? ");
+                            string? name = Console.ReadLine();
+                            if(name != null)
+                            {
+                                Author author = new Author{ Name = name };
+                                db.Authors.Add(author);
+                                book.Author = author;
+                                await db.SaveChangesAsync();
+                            }
+                        }
+
+                        if(string.IsNullOrWhiteSpace(answer))
+                        {
+
+                        
                         if (int.TryParse(answer, out int id))
                         {
-                            var author = await db.Authors.FirstOrDefaultAsync(a => a.Id == id);
-                            if (author != null)
-                            {
-                                book.Author = author;
-                                break;
-                            }
-                            else
-                            {
-                                Console.WriteLine("Author cant be null");
+                                var author = await db.Authors.FirstOrDefaultAsync(a => a.Id == id);
+                                if (author != null)
+                                {
+                                    book.Author = author;
+                                    break;
+                                }
+                                else
+                                {
+                                    Console.WriteLine("Author cant be null");
+                                    Console.ReadKey(true);
+                                    continue;
+                                }
                             }
                         }
-                        else
-                        {
-                            Console.WriteLine("must be a valid id");
-                        }
+                        Console.WriteLine("must be a valid id");
+                        Console.ReadKey(true);
+                        continue;
                     }
 
                     book.IsDisplayed = false;
@@ -836,6 +874,7 @@ namespace Webbshop.Queries
                     db.Products.Add(book);
                     await db.SaveChangesAsync();
                     Console.WriteLine("Book added succesfully");
+                    Console.ReadKey(true);
                 }
                 catch (DbUpdateException ex)
                 {

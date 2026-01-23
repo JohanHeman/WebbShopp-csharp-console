@@ -138,7 +138,7 @@ namespace Webbshop
                            await AdminCategory.AdminCategories();
                             break;
                         case Enums.adminEnums.Customer_management:
-                            AdminQueries.AdminCustomer();
+                            AdminCustomer.AdminCustomerOperations();
                             break;
                         case Enums.adminEnums.Home:
                             Console.WriteLine("Returning to home...");
@@ -148,7 +148,7 @@ namespace Webbshop
                             await AdminSupplier.ShowSuppliers();
                             break;
                         case Enums.adminEnums.Add_product:
-                            await AdminQueries.AddProduct();
+                            await AdminCategory.AddProduct();
                             break;
                     }
                 }
