@@ -135,7 +135,7 @@ namespace Webbshop
                     switch ((Enums.adminEnums)input)
                     {
                         case Enums.adminEnums.Product_categories:
-                           await AdminQueries.AdminCategories();
+                           await AdminCategory.AdminCategories();
                             break;
                         case Enums.adminEnums.Customer_management:
                             AdminQueries.AdminCustomer();
@@ -145,7 +145,7 @@ namespace Webbshop
                             Thread.Sleep(1000);
                             return;
                         case Enums.adminEnums.supplier:
-                            await AdminQueries.ShowSuppliers();
+                            await AdminSupplier.ShowSuppliers();
                             break;
                         case Enums.adminEnums.Add_product:
                             await AdminQueries.AddProduct();

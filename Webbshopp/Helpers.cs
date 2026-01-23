@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Webbshop.Connections;
 using Webbshop.Models;
 using Webbshop.Queries;
 using WindowDemo;
@@ -48,7 +49,20 @@ namespace Webbshop
             return window;
         }
 
+        public static Window GetSuppliers(MyAppContext db, List<Supplier> suppliers)
+        {
+            Window window;
 
+            List<string> windowList = new();
+            foreach (var item in suppliers)
+            {
+                windowList.Add(item.Id + " :" + item.Name.ToString());
+            }
+
+            window = new Window("Suppliers", 0, 2, windowList);
+
+            return window;
+        }
 
     }
 }
