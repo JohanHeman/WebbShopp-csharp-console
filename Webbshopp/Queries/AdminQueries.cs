@@ -1,8 +1,11 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Diagnostics;
+using Microsoft.EntityFrameworkCore.Metadata.Conventions;
+using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Microsoft.Identity.Client;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.Data.Common;
 using System.Linq;
 using System.Net.Http.Headers;
@@ -11,6 +14,7 @@ using System.Threading.Tasks;
 using Webbshop.Connections;
 using Webbshop.Models;
 using WindowDemo;
+using static System.Reflection.Metadata.BlobBuilder;
 
 namespace Webbshop.Queries
 {
@@ -36,27 +40,95 @@ namespace Webbshop.Queries
                 List<Category> categories = DapperQueries.GetCategories(); // gets the items from dapper querry into a list 
 
                 Window window = Helpers.ShowCategories(categories);
-                window.Draw();
-
-                ConsoleKeyInfo key = Console.ReadKey(true);
-
-                if(int.TryParse(key.KeyChar.ToString(), out int input))
+                while(true)
                 {
-                    if (categories.Any(c => c.Id == input))
+                    window.Draw();
+                    Console.WriteLine("Press 'd' to delete 'a' to add a category or 'q' to quit");
+                    ConsoleKeyInfo key = Console.ReadKey(true);
+
+                    switch(key.KeyChar)
                     {
-                        await ShowCategoryAdmin(db, input);
+                        case 'q':
+                            Console.Clear();
+                            return;
+                        case 'd':
+                            var catToRemove = await GetCatToRemove(db);
+                            if (catToRemove != null)
+                            {
+                                await DeleteCategory(db, catToRemove.Id);
+                            }
+                            break;
+                        case 'a':
+                            await AddCategory(db);
+                            break;
+
+                        default:
+                            if (int.TryParse(key.KeyChar.ToString(), out int input))
+                            {
+                                if (categories.Any(c => c.Id == input))
+                                {
+                                    await ShowCategoryAdmin(db, input);
+                                    break;
+                                }
+                                else
+                                {
+                                    Console.WriteLine("No category with that Id.");
+                                }
+                            }
+                            else
+                            {
+                                Console.WriteLine("Not a valid input");
+
+                            }
+                            Console.ReadKey(true);
+                            Console.Clear();
+                            break;
                     }
-                    else
-                    {
-                        Console.WriteLine("No category with that Id.");
-                    }
-                }
-                else
-                {
-                    Console.WriteLine("Not a valid input");
                 }
             }
         }
+
+
+        public static async Task AddCategory(MyAppContext db)
+        {
+            try
+            {
+                while(true)
+                {
+                    Console.Clear();
+                    Console.WriteLine("Enter the name of the new category or press 'q' to quit");
+                    string input = Console.ReadLine();
+                    if (input == "q")
+                    {
+                        Console.Clear();
+                        break;
+                    }
+
+                    if (!string.IsNullOrWhiteSpace(input) && !db.Categories.Any(c => c.Name == input))
+                    {
+                        Category category = new();
+                        category.Name = input;
+
+                        db.Categories.Add(category);
+                        await db.SaveChangesAsync();
+
+                        Console.WriteLine("Succesfully added category");
+                        break;
+                    }
+                    else
+                    {
+                        Console.WriteLine("Not a valid input. please try again");
+                    }
+                }
+
+            }
+            catch(DbUpdateException ex)
+            {
+                Console.WriteLine("Something went wrong");
+                Console.WriteLine(ex.StackTrace);
+            }
+        }
+
 
         public static async Task ShowCategoryAdmin(MyAppContext db, int id)
         {
@@ -89,8 +161,6 @@ namespace Webbshop.Queries
                         {
                             Console.WriteLine("No book with that id");
                         }
-
-
                     }
                     else
                     {
@@ -109,6 +179,115 @@ namespace Webbshop.Queries
                 Console.WriteLine(e.StackTrace);
             }
         }
+
+
+        public static async Task<Category?> GetCatToRemove(MyAppContext db)
+        {
+            List<Category> categories = DapperQueries.GetCategories();
+
+            Window window = Helpers.ShowCategories(categories);
+
+            Category? catToDelete = null;
+
+            while (true)
+            {
+                Console.Clear();
+                window.Draw();
+                Console.WriteLine("Choose a category to delete press 'q' to quit");
+                string? input = Console.ReadLine();
+
+                if (input == "q")
+                {
+                    Console.Clear();
+                    return null;
+                    
+                }
+
+                if (int.TryParse(input, out int categoryId))
+                {
+                    catToDelete = await db.Categories.FirstOrDefaultAsync(c => c.Id == categoryId);
+                    if (catToDelete != null)
+                    {
+                        break;
+                    }
+                    else
+                    {
+                        Console.WriteLine("Not a valid input please try again");
+                        Console.ReadKey(true);
+                        continue;
+                    }
+                }
+                else
+                {
+                    Console.WriteLine("Not a valid input");
+                    Console.ReadKey(true);
+                    continue;
+                }
+            }
+            return catToDelete;
+        }
+
+
+        public static async Task DeleteCategory(MyAppContext db, int id)
+        {
+            List<Category> categories = DapperQueries.GetCategories(); 
+
+            Window window = Helpers.ShowCategories(categories);
+
+            var books = await db.Products.Where(b => b.CategoryId == id).ToListAsync();
+
+            while (true)
+            {
+                Console.Clear();
+                window.Draw();
+
+                Console.WriteLine("Choose a category to move the products to from the removed category. press 'q' to quit");
+
+                string input = Console.ReadLine();
+                if (input == "q")
+                {
+                    Console.Clear();
+                    break;
+                }
+
+                var category = await db.Categories.FirstOrDefaultAsync(c => c.Id == id);
+                if (category != null)
+                {
+                    if(int.TryParse(input, out int categoryId))
+                    {
+                        if(categoryId == id)
+                        {
+                            Console.WriteLine("You cant move items to a category you are about to delete. ");
+                            Console.ReadKey(true);
+                            continue;
+                        }
+                        var newCategory = await db.Categories.FirstOrDefaultAsync(c => c.Id == categoryId);
+                        if (newCategory != null)
+                        {
+                            foreach(var item in books)
+                            {
+                                item.Category = newCategory;
+                            }
+                            try
+                            {
+                                db.Categories.Remove(category);
+                                await db.SaveChangesAsync();
+                                Console.Clear();
+                                Console.WriteLine("succesfully delete category and moved books to new category.");
+                                Console.ReadKey(true);
+                                break;
+                            }
+                            catch(DbUpdateException ex)
+                            {
+                                Console.WriteLine("Something went wrong ");
+                                Console.WriteLine(ex.StackTrace);
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
 
         public static async Task AdminProduct(MyAppContext db, int id)
         {
@@ -375,7 +554,7 @@ namespace Webbshop.Queries
                     Console.Clear();
                     window.Draw();
 
-                    Console.WriteLine("Choose a supplier to move the products from the removed supplier to. press 'q' to quit");
+                    Console.WriteLine("Choose a supplier to move the products to from the removed supplier. press 'q' to quit");
                     string input = Console.ReadLine();
                     if (input == "q") break;
 
@@ -594,14 +773,18 @@ namespace Webbshop.Queries
         }
 
 
-        // create function to delete categories as its own option
-        // show categories, ask what category to delete 
-        // delete the category
+
 
         // add option to product where admin can change product to isdisplayed on the front page 
+
         // if there is allready 3 of them, show all 3, and ask which one ro replace, or exit 
         // then swap them by setting isdisplayed to 1 or 0 on the items.
 
+        // also add option to add products
+        // add categories
+        // add suppliers
+        
+        
 
     }
 }
