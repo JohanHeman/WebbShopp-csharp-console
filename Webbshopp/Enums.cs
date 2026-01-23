@@ -25,6 +25,7 @@ namespace Webbshop
         public enum adminEnums
         {
             Product_categories = 1,
+            Add_product,
             Customer_management,
             Statistics,
             supplier,

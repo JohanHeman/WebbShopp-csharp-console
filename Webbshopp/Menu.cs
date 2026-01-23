@@ -147,6 +147,9 @@ namespace Webbshop
                         case Enums.adminEnums.supplier:
                             await AdminQueries.ShowSuppliers();
                             break;
+                        case Enums.adminEnums.Add_product:
+                            await AdminQueries.AddProduct();
+                            break;
                     }
                 }
                 else

@@ -469,10 +469,17 @@ namespace Webbshop.Queries
                 {
                     Console.Clear();
                     window.Draw();
-                    Console.WriteLine("Choose a supplier or press q to quit");
+                    Console.WriteLine("Choose a supplier or press q to quit or press 'a' to add a supplier");
                     string answer = Console.ReadLine();
                     if(answer != "q")
                     {
+                        if(answer == "a")
+                        {
+                            await AddSupplier(db);
+                            Console.Clear();
+                            break;
+                        }
+
                         if (int.TryParse(answer, out int input))
                         {
                             if (suppliers.Any(s => s.Id == input))
@@ -489,6 +496,7 @@ namespace Webbshop.Queries
                             continue;
                         }
                     }
+
                     else
                     {
                         break;
@@ -501,7 +509,7 @@ namespace Webbshop.Queries
         public static async Task ChangeSupplier(MyAppContext db, Supplier supplier)
         {
             Console.WriteLine("What do you want to do? ");
-            Console.WriteLine("'n' for updating name\n'd' for deleting supplier \n'a' for adding a new supplier");
+            Console.WriteLine("'n' for updating name\n'd' for deleting supplier");
 
 
             ConsoleKeyInfo key = Console.ReadKey(true);
@@ -512,9 +520,6 @@ namespace Webbshop.Queries
                     break;
                 case 'd':
                     await DeleteSupplier(db, supplier);
-                    break;
-                case 'a':
-                    //function to add supplier
                     break;
             }
         }
@@ -545,6 +550,7 @@ namespace Webbshop.Queries
                         await db.Suppliers.AddAsync(supplier);
                         await db.SaveChangesAsync();
                         Console.WriteLine("Succesfully added new supplier");
+                        Console.ReadKey(true);
                         break;
                     }
                 }
@@ -815,6 +821,227 @@ namespace Webbshop.Queries
             }
         }
 
+
+
+        public static async Task AddProduct()
+        {
+            using (MyAppContext db = new MyAppContext())
+            {
+                Product book = new();
+                try
+                {
+                    while(true)
+                    {
+                        Console.Clear();
+                        Console.Write("Enter the name of the new product press 'q' to quit");
+                        string? name = Console.ReadLine();
+
+                        if(name == "q")
+                        {
+                            return;
+                        }
+
+                        if (name != null)
+                        {
+                            book.Name = name;
+                            break;
+                        }
+
+                        Console.WriteLine("The book cant be null");
+                    }
+
+                    while(true)
+                    {
+                        Console.Clear();
+                        Console.Write("Enter the Price of the book");
+                        string answer = Console.ReadLine();
+
+                        if(answer == "q")
+                        {
+                            return;
+                        }
+
+                        if(decimal.TryParse(answer, out decimal price))
+                        {
+                            book.Price = price;
+                            break;
+                        }
+                        else
+                        {
+                            Console.WriteLine("Must be a valid decimal value");
+                            continue;
+                        }
+                    }
+                
+                    while(true)
+                    {
+                        Console.Clear();
+                        Console.Write("How many books in stock? ");
+                        string? answer = Console.ReadLine();
+
+                        if(answer == "q") 
+                        {
+                            return;
+                        }
+
+                        if(int.TryParse(answer, out int num))
+                        {
+                            book.InStock = num;
+                            break;
+                        }
+                        else
+                        {
+                            Console.WriteLine("Must be a valid number");
+                            continue;
+                        }
+                    }
+
+                    while(true)
+                    {
+                        Console.Clear();
+                        Console.Write("Enter a short description of the book");
+                        string? desc = Console.ReadLine();
+
+                        if (desc == "q")
+                        {
+                            return;
+                        }
+
+                        if(desc != null)
+                        {
+                            book.Information = desc;
+                            break;
+                        }
+                        else
+                        {
+                            Console.WriteLine("Cant be null");
+                            continue;
+                        }
+
+                    }
+
+                    List<Category> categories = DapperQueries.GetCategories();
+
+                    Window window = Helpers.ShowCategories(categories);
+                    while (true)
+                    {
+                        Console.Clear();
+                        window.Draw();
+                        Console.Write("Enter the category of the book by the id: ");
+
+                        string? answer = Console.ReadLine();
+                        if(answer == "q")
+                        {
+                            return;
+                        }
+
+                        if(answer != null)
+                        {
+                            if(int.TryParse(answer, out int id))
+                            {
+                                var category = await db.Categories.FirstOrDefaultAsync(c => c.Id == id);
+                                if (category != null)
+                                {
+                                    book.Category = category;
+                                    break;
+                                }
+                                else
+                                {
+                                    Console.WriteLine("category cant be null");
+                                    continue;
+                                }
+                            }
+                            else
+                            {
+                                Console.WriteLine("Must be a valid id");
+                            }
+                        }
+                    }
+
+                    var suppliers = await db.Suppliers.ToListAsync();
+                    var windowSuppliers = GetSuppliers(db, suppliers);
+
+                    while (true)
+                    {
+                        Console.Clear();
+                        windowSuppliers.Draw();
+                        Console.WriteLine("Who is the supplier of the book? ");
+                        string answer = Console.ReadLine();
+                        if(answer == "q")
+                        {
+                            return; 
+                        }
+                        if(int.TryParse(answer, out int id))
+                        {
+                            var supplier = await db.Suppliers.FirstOrDefaultAsync(s => s.Id == id);
+                            if (supplier != null)
+                            {
+                                book.Supplier = supplier;
+                                break;
+                            }
+                            else
+                            {
+                                Console.WriteLine("Supplier cant be null");
+                            }
+                        }
+                        else
+                        {
+                            Console.WriteLine("Id must be a valid number");
+                        }
+                    }
+
+                    while(true)
+                    {
+                        Console.Clear();
+                        Console.WriteLine("Who is the autohor of the book? ");
+
+                        var authors = await db.Authors.ToListAsync();
+                        List<string> authorList = new List<string>();
+                        foreach(var a in authors)
+                        {
+                            authorList.Add($"{a.Id}: {a.Name}");
+                        }
+                        var authorWindow = new Window("Authors", 0, 2, authorList);
+                        authorWindow.Draw();
+
+                        string? answer = Console.ReadLine();
+                        if(answer == "q")
+                        {
+                            return;
+                        }
+
+                        if(int.TryParse(answer, out int id))
+                        {
+                            var author = await db.Authors.FirstOrDefaultAsync(a => a.Id == id);
+                            if(author != null)
+                            {
+                                book.Author = author;
+                                break;
+                            }
+                            else
+                            {
+                                Console.WriteLine("Author cant be null");
+                            }
+                        }
+                        else
+                        {
+                            Console.WriteLine("must be a valid id");
+                        }
+                    }
+
+                    book.IsDisplayed = false;
+
+                    db.Products.Add(book);
+                    await db.SaveChangesAsync();
+                    Console.WriteLine("Book added succesfully");
+                } 
+                catch(DbUpdateException ex)
+                {
+                    Console.WriteLine("Something went wrong");
+                    Console.WriteLine(ex.StackTrace);
+                }
+            }
+        }
 
 
 
