@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Webbshop.Connections;
 using Webbshop.Models;
 using Webbshop.Queries;
 using WindowDemo;
@@ -16,67 +17,103 @@ namespace Webbshop
 
         public static async Task StartMenu()
         {
-            while (true)
+            // using var db and then getting the list of all the products
+
+            using(var db = new MyAppContext())
             {
-                // later in this the names of the books will be from the database, isDeal= true
-                    Console.Clear();
-                List<string> welcomeText = new List<string> { "Welcome to the Book store. ", "We provide books" };
-
-                var windowStart = new Window("The Book Shop", 37, 0, welcomeText);
-                windowStart.Draw();
-
-                List<string> dealOne = new List<string> { "Book name 1", "Author", "Press p to purchase" };
-                var dealOneWindow = new Window("Deal 1", 10, 5, dealOne);
-                dealOneWindow.Draw();
-
-                List<string> dealTwo = new List<string> { "Book name 2", "Author", "Press p to purchase" };
-                var dealTwoWindow = new Window("Deal 2", 40, 5, dealTwo);
-                dealTwoWindow.Draw();
-
-                List<string> dealThree = new List<string> { "Book name 3", "Author", "Press p to purchase" };
-                var dealThreeWindow = new Window("Deal 3", 70, 5, dealThree);
-                dealThreeWindow.Draw();
-
-                List<string> menuChoices = Helpers.EnumsToLists(typeof(Enums.HomeEnums));
-
-                var menuWindow = new Window("Menu", 2, 0, menuChoices);
-                menuWindow.Draw();
-                Console.WriteLine("Press 'q' to quit");
-
-                ConsoleKeyInfo key = Console.ReadKey(true);
-
-                if (key.KeyChar == 'q') break;
-
-                else
+                while (true)
                 {
-                    if (int.TryParse(key.KeyChar.ToString(), out int input))
-                    {
+                    var products = await db.Products.Where(p => p.IsDisplayed).Include(p => p.Author).Take(3).ToListAsync();
+                    // later in this the names of the books will be from the database, isDeal= true
+                    Console.Clear();
+                    List<string> welcomeText = new List<string> { "Welcome to the Book store. ", "We provide books" };
 
-                        switch ((Enums.HomeEnums)input)
-                        {
-                            case Enums.HomeEnums.Customer_menu:
-                                CustomerMenu();
-                                break;
-                            case Enums.HomeEnums.Admin_menu:
-                                await AdminMenu();
-                                break;
+                    var windowStart = new Window("The Book Shop", 37, 0, welcomeText);
+                    windowStart.Draw();
 
-                        }
-                    }
+                    Product bookOne = null;
+                    Product bookTwo = null;
+                    Product bookThree = null;
+
+                    if (products.Count > 0)
+                        bookOne = products[0];
+
+                    if (products.Count > 1)
+                        bookTwo = products[1];
+
+                    if (products.Count > 2)
+                        bookThree = products[2];
+
+
+                    List<string> dealOne = new List<string> { bookOne == null ? "No book" : bookOne.Name, bookOne == null ? "No book" : bookOne.Author.Name, "Press 'A' to purchase" };
+                    var dealOneWindow = new Window("Deal 1", 10, 5, dealOne);
+                    dealOneWindow.Draw();
+
+                    List<string> dealTwo = new List<string> { bookTwo == null ? "No book" : bookTwo.Name, bookTwo == null ? "No book" : bookTwo.Author.Name, "Press 'B' to purchase" };
+                    var dealTwoWindow = new Window("Deal 2", 40, 5, dealTwo);
+                    dealTwoWindow.Draw();
+
+                    List<string> dealThree = new List<string> { bookThree == null ? "No book": bookThree.Name, bookThree == null ? "No book" : bookThree.Author.Name, "Press 'C' to purchase" };
+                    var dealThreeWindow = new Window("Deal 3", 70, 5, dealThree);
+                    dealThreeWindow.Draw();
+
+                    List<string> menuChoices = Helpers.EnumsToLists(typeof(Enums.HomeEnums));
+
+                    var menuWindow = new Window("Menu", 2, 0, menuChoices);
+                    menuWindow.Draw();
+                    Console.WriteLine("Press 'q' to quit");
+
+                    ConsoleKeyInfo key = Console.ReadKey(true);
+
+                    if (key.KeyChar == 'q') break;
+
+
                     else
                     {
-                        Console.Clear();
+                        if (int.TryParse(key.KeyChar.ToString(), out int input))
+                        {
+
+                            switch ((Enums.HomeEnums)input)
+                            {
+                                case Enums.HomeEnums.Customer_menu:
+                                    CustomerMenu();
+                                    break;
+                                case Enums.HomeEnums.Admin_menu:
+                                    await AdminMenu();
+                                    continue;
+                                
+
+                            }
+                        }
+
+                        else
+                        {
+                            switch(key.KeyChar)
+                            {
+                                case 'A':
+                                    //function to show bookone
+                                    break;
+                                case 'B':
+                                    //function to show booktwo
+                                    break;
+                                case 'C':
+                                    //function to show bookthree
+                                    break;
+                            }
+                        }
+
+                            Console.Clear();
                         Console.WriteLine("Not a valid input please try again");
                         Console.WriteLine("Press any key to go back");
 
                         Console.ReadKey(true);
+                        
                     }
+
                 }
-
+                Console.Clear();
+                Console.WriteLine("Thank you for visiting. Please come again!");
             }
-            Console.Clear();
-            Console.WriteLine("Thank you for visiting. Please come again!");
-
         }
 
         public static void CustomerMenu()
@@ -232,5 +269,6 @@ namespace Webbshop
                 }
             }
         }
+
     }
 }

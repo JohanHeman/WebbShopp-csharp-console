@@ -32,13 +32,6 @@ namespace Webbshop
             Home
         }
 
-        public enum productEnums
-        {
-            Add_product = 1,
-            Delete_product,
-            Update_product,
-            Home
-        }
 
         public enum shopEnums
         {
@@ -63,6 +56,7 @@ namespace Webbshop
             category,
             instock,
             change_supplier,
+            Is_displayed,
             Delete_product
         }
 

@@ -298,12 +298,11 @@ namespace Webbshop.Queries
             }
         }
 
-        public static async Task ChangeSupplierBook(MyAppContext db, int id)
+        public static async Task ChangeSupplierBook(MyAppContext db, Product book)
         {
             Console.Clear();
             var suppliers = await db.Suppliers.ToListAsync();
             var window = Helpers.GetSuppliers(db, suppliers);
-            var book = await db.Products.FirstOrDefaultAsync(p => p.Id == id);
             while (true)
             {
                 window.Draw();
@@ -331,9 +330,9 @@ namespace Webbshop.Queries
             }
         }
 
-        public static async Task InStockProduct(MyAppContext db, int id)
+        public static async Task InStockProduct(MyAppContext db, Product book)
         {
-            var book = await db.Products.FirstOrDefaultAsync(p => p.Id == id);
+            
 
             Console.WriteLine("Currently we have " + book.InStock + "in stock");
 
@@ -378,11 +377,11 @@ namespace Webbshop.Queries
 
         }
 
-        public static async Task ChangePriceProduct(MyAppContext db, int id)
+        public static async Task ChangePriceProduct(MyAppContext db, Product book)
         {
             Console.Clear();
 
-            var book = await db.Products.FirstOrDefaultAsync(p => p.Id == id);
+            
             Console.WriteLine("The current price is " + book.Price);
 
             while (true)
@@ -405,11 +404,11 @@ namespace Webbshop.Queries
             }
         }
 
-        public static async Task ChangeCategoryProduct(MyAppContext db, int id)
+        public static async Task ChangeCategoryProduct(MyAppContext db, Product book)
         {
             Console.Clear();
 
-            var book = await db.Products.FirstOrDefaultAsync(p => p.Id == id);
+           
 
             List<Category> categories = DapperQueries.GetCategories();
 
@@ -462,7 +461,7 @@ namespace Webbshop.Queries
             }
         }
 
-        public static async Task ChangeInfo(MyAppContext db, int id)
+        public static async Task ChangeInfo(MyAppContext db, Product book)
         {
             Console.Clear();
 
@@ -475,11 +474,11 @@ namespace Webbshop.Queries
                 {
                     try
                     {
-                        var book = await db.Products.FirstOrDefaultAsync(b => b.Id == id);
                         if (answer != null)
                         {
                             book.Information = answer;
                             await db.SaveChangesAsync();
+                            break;
                         }
                     }
                     catch (DbUpdateException ex)
@@ -490,13 +489,13 @@ namespace Webbshop.Queries
                 }
                 else
                 {
-                    break;
+                    return;
                 }
 
             }
         }
 
-        public static async Task ChangeName(MyAppContext db, int id)
+        public static async Task ChangeName(MyAppContext db, Product book)
         {
             Console.Clear();
             while (true)
@@ -512,7 +511,6 @@ namespace Webbshop.Queries
 
                 try
                 {
-                    var book = await db.Products.FirstOrDefaultAsync(b => b.Id == id);
                     if (answer != null)
                     {
                         book.Name = answer;
@@ -552,29 +550,39 @@ namespace Webbshop.Queries
 
                 if (int.TryParse(key.KeyChar.ToString(), out int input))
                 {
-                    switch ((Enums.AdminProductEnums)input)
+                    if(book != null)
                     {
-                        case Enums.AdminProductEnums.name:
-                            await ChangeName(db, id);
-                            break;
-                        case Enums.AdminProductEnums.info:
-                            await ChangeInfo(db, id);
-                            break;
-                        case Enums.AdminProductEnums.change_supplier:
-                            await ChangeSupplierBook(db, id);
-                            break;
-                        case Enums.AdminProductEnums.instock:
-                            await InStockProduct(db, id);
-                            break;
-                        case Enums.AdminProductEnums.price:
-                            await ChangePriceProduct(db, id);
-                            break;
-                        case Enums.AdminProductEnums.category:
-                            await ChangeCategoryProduct(db, id);
-                            break;
-                        case Enums.AdminProductEnums.Delete_product:
-                            DeleteProduct(db, id);
-                            break;
+                        switch ((Enums.AdminProductEnums)input)
+                        {
+                            case Enums.AdminProductEnums.name:
+                                await ChangeName(db, book);
+                                break;
+                            case Enums.AdminProductEnums.info:
+                                await ChangeInfo(db, book);
+                                break;
+                            case Enums.AdminProductEnums.change_supplier:
+                                await ChangeSupplierBook(db, book);
+                                break;
+                            case Enums.AdminProductEnums.instock:
+                                await InStockProduct(db, book);
+                                break;
+                            case Enums.AdminProductEnums.price:
+                                await ChangePriceProduct(db, book);
+                                break;
+                            case Enums.AdminProductEnums.category:
+                                await ChangeCategoryProduct(db, book);
+                                break;
+                            case Enums.AdminProductEnums.Delete_product:
+                                DeleteProduct(db, id);
+                                break;
+                            case Enums.AdminProductEnums.Is_displayed:
+                                await FrontPageProduct(db, book);
+                                break;
+                        }
+                    }
+                    else
+                    {
+                        Console.WriteLine("The book cant be null");
                     }
                 }
 
@@ -602,6 +610,7 @@ namespace Webbshop.Queries
                     if (key.KeyChar == 'c')
                     {
                         await ChangeProduct(db, id);
+                        return;
                     }
                 }
                 else
@@ -881,6 +890,78 @@ namespace Webbshop.Queries
                     Console.WriteLine("Something went wrong");
                     Console.WriteLine(ex.StackTrace);
                 }
+            }
+        }
+
+
+        public static async Task FrontPageProduct(MyAppContext db, Product book)
+        {
+            try
+            {
+                if(book.IsDisplayed)
+                {
+                    while(true)
+                    {
+                        Console.WriteLine("This book is displayed do you want to change that? y/n 'q' to quit");
+                        ConsoleKeyInfo key = Console.ReadKey(true);
+
+                        if(key.KeyChar == 'q')
+                        {
+                            return;
+                        }
+
+                        if(key.KeyChar == 'y')
+                        {
+                            book.IsDisplayed = false;
+                            await db.SaveChangesAsync();
+                            Console.WriteLine("Okay the book is not displayed anymore.");
+                            Console.ReadKey(true);
+                            break;
+                        }
+                        else
+                        {
+                            Console.WriteLine("Okay! going back...");
+                            Thread.Sleep(1000);
+                            return;
+                        }
+                    }
+                }
+
+                if(!book.IsDisplayed)
+                {
+                    while(true)
+                    {
+                        Console.WriteLine("Do you want to display this book in the front page? y/n press 'q' to quit");
+
+                        ConsoleKeyInfo key = Console.ReadKey(true);
+
+                        if (key.KeyChar == 'q')
+                        {
+                            return;
+                        }
+                    
+                        if(key.KeyChar == 'y')
+                        {
+                            var theList = await db.Products.Where(p => p.IsDisplayed).ToListAsync();
+
+                            if(theList.Count < 3)
+                            {
+                                book.IsDisplayed = true;
+                                await db.SaveChangesAsync();
+                                Console.WriteLine("The book has been updated.");
+                                break;
+                            }
+                            Console.WriteLine("There are too many books displayed on the frontpage. ");
+                            Console.ReadKey(true);
+                            return;
+                        }
+                    }
+                }
+            }
+            catch(DbUpdateException ex)
+            {
+                Console.WriteLine("SOmething went wrong..");
+                Console.WriteLine(ex.StackTrace);
             }
         }
     }
