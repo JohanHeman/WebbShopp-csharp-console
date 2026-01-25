@@ -5,6 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Webbshop.Connections;
+using Webbshop.Models;
 using WindowDemo;
 
 namespace Webbshop.Queries
@@ -16,7 +17,7 @@ namespace Webbshop.Queries
         {
             Console.Clear();
 
-            List<string> statistics = Helpers.EnumsToLists(typeof(Enums.admingSatistics));
+            List<string> statistics = Helpers.EnumsToLists(typeof(Enums.adminSatistics));
 
             var window = new Window("Statistics", 0, 2, statistics);
             window.Draw();
@@ -25,11 +26,15 @@ namespace Webbshop.Queries
 
             if(int.TryParse(key.KeyChar.ToString(), out int input))
             {
-                switch((Enums.admingSatistics)input)
+                switch((Enums.adminSatistics)input)
                 {
-                    case Enums.admingSatistics.Most_sold_products:
+                    case Enums.adminSatistics.Most_sold_products:
                         TopFiveProducts();
                         break;
+                    case Enums.adminSatistics.sold_past_hour:
+                        LastHourOverview();
+                        break;
+
                 }
             }
         }
@@ -56,5 +61,47 @@ namespace Webbshop.Queries
                 Console.ReadKey(true);
             }
         }
+
+        public static void LastHourOverview()
+        {
+            using(var db = new MyAppContext())
+            {
+                DateTime oneHourAgo = DateTime.Now.AddHours(-1); // takes away one hour from the current time
+
+                // groups by whats products from checkoutproducts and only shows the products sold the last hour
+                var products = db.CheckoutProducts.Include(cp => cp.Product).Where(cp => cp.SoldAt >= oneHourAgo).GroupBy(cp => cp.ProductId).Select(g => new
+                {
+                    Product = g.FirstOrDefault().Product,
+                    SoldCount = g.Count()
+
+                }).OrderByDescending(p => p.SoldCount).ToList();
+
+                List<string> theList = new List<string>();
+
+                foreach(var item in products)
+                {
+                    theList.Add($"{item.Product.Name} sold amount {item.SoldCount}");
+                }
+
+                var window = new Window("Sold past hour", 0, 2, theList);
+                Console.Clear();
+
+                Console.WriteLine("These products have been sold for the past hour.");
+                window.Draw();
+
+                Console.ReadLine();
+            }
+        }
+
+        public static void CustomerGroups()
+        {
+            using( var db = new MyAppContext())
+            {
+                
+            }
+        }
+
+
+
     }
 }

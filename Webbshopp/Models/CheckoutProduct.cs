@@ -14,5 +14,7 @@ namespace Webbshop.Models
         public Checkout Checkout { get; set; }
         public int ProductId { get; set; }
         public Product Product { get; set; }
+
+        public DateTime SoldAt { get; set; }
     }
 }

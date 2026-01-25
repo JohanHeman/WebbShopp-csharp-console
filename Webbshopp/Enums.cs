@@ -61,10 +61,10 @@ namespace Webbshop
         }
 
 
-        public enum admingSatistics
+        public enum adminSatistics
         {
             Most_sold_products = 1,
-            product_overview,
+            sold_past_hour,
             biggest_customer_groups
         }
     }

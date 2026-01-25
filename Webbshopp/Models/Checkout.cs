@@ -19,5 +19,6 @@ namespace Webbshop.Models
         public ShippingMethod? ShippingMethod { get; set; }
         public Payment? Payment { get; set; } 
         public ICollection<CheckoutProduct>? CheckoutProducts { get; set; } = new List<CheckoutProduct>();
+
     }
 }

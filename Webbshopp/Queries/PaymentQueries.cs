@@ -159,7 +159,8 @@ namespace Webbshop.Queries
                     TotalAmount = cart.TotalAmount,
                     IsPaid = false,
                     Address = address,
-                    Cart = cart
+                    Cart = cart,
+                    
                 };
 
                 foreach (var cartProduct in cart.CartProducts)
@@ -167,10 +168,10 @@ namespace Webbshop.Queries
                     checkout.CheckoutProducts.Add(new CheckoutProduct
                     {
                         Quantity = cartProduct.Quantity,
-                        Product = cartProduct.Product
+                        Product = cartProduct.Product,
+                        SoldAt = DateTime.Now
                     });
                 }
-
 
                 db.Checkouts.Add(checkout);
                 db.SaveChanges(); 
