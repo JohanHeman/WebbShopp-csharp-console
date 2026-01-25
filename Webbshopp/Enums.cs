@@ -48,7 +48,7 @@ namespace Webbshop
             Order_history
         }
 
-        public enum AdminProductEnums
+        public enum adminProductEnums
         {
             name = 1,
             info,
@@ -60,5 +60,12 @@ namespace Webbshop
             Delete_product
         }
 
+
+        public enum admingSatistics
+        {
+            Most_sold_products = 1,
+            product_overview,
+            biggest_customer_groups
+        }
     }
 }

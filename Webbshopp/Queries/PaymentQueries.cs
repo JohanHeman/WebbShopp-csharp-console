@@ -42,7 +42,7 @@ namespace Webbshop.Queries
                 Console.Write("Enter city street");
                 string street = Console.ReadLine().Trim();
 
-                var existingUser = db.Customers.Include(c => c.Adresses).ThenInclude(a => a.City).FirstOrDefault(c => c.Name == name && c.Adresses.Any(a => a.Street == street && a.City.Name == city));
+                var existingUser = db.Customers.Include(c => c.Adresses).ThenInclude(a => a.City).FirstOrDefault(c => c.Name == name);
 
                 if (existingUser == null)
                 {
@@ -125,8 +125,28 @@ namespace Webbshop.Queries
                 else
                 {
                     customer = existingUser;
-                    address = existingUser.Adresses.First(a => a.Street == street);
-                    Console.WriteLine("Existing customer found. Moving to checkout...");
+                    address = existingUser.Adresses.FirstOrDefault(a => a.Street == street && a.City.Name == city);
+
+                    if (address == null)
+                    {
+                        address = new Address
+                        {
+                            Street = street
+                        };
+
+                        var existingCountry = db.Countries.FirstOrDefault(c => c.Name == country);
+                        var existingCity = db.Cities.FirstOrDefault(c => c.Name == city && c.CountryId == existingCountry.Id);
+
+                        address.City = existingCity;
+                        customer.Adresses.Add(address);
+                        db.SaveChanges();
+
+                    }
+                    else
+                    {
+                        Console.WriteLine("Existing customer found. Moving to checkout...");
+                    }
+
                     Thread.Sleep(1000);
                 }
 
@@ -153,7 +173,7 @@ namespace Webbshop.Queries
 
 
                 db.Checkouts.Add(checkout);
-                db.SaveChanges();
+                db.SaveChanges(); 
                 Console.ReadLine();
 
                 Console.Clear();

@@ -547,7 +547,7 @@ namespace Webbshop.Queries
             {
                 var book = await db.Products.FirstOrDefaultAsync(b => b.Id == id);
 
-                List<string> options = Helpers.EnumsToLists(typeof(Enums.AdminProductEnums));
+                List<string> options = Helpers.EnumsToLists(typeof(Enums.adminProductEnums));
 
                 var window = new Window("Options", 2, 0, options);
                 window.Draw();
@@ -558,30 +558,30 @@ namespace Webbshop.Queries
                 {
                     if(book != null)
                     {
-                        switch ((Enums.AdminProductEnums)input)
+                        switch ((Enums.adminProductEnums)input)
                         {
-                            case Enums.AdminProductEnums.name:
+                            case Enums.adminProductEnums.name:
                                 await ChangeName(db, book);
                                 break;
-                            case Enums.AdminProductEnums.info:
+                            case Enums.adminProductEnums.info:
                                 await ChangeInfo(db, book);
                                 break;
-                            case Enums.AdminProductEnums.change_supplier:
+                            case Enums.adminProductEnums.change_supplier:
                                 await ChangeSupplierBook(db, book);
                                 break;
-                            case Enums.AdminProductEnums.instock:
+                            case Enums.adminProductEnums.instock:
                                 await InStockProduct(db, book);
                                 break;
-                            case Enums.AdminProductEnums.price:
+                            case Enums.adminProductEnums.price:
                                 await ChangePriceProduct(db, book);
                                 break;
-                            case Enums.AdminProductEnums.category:
+                            case Enums.adminProductEnums.category:
                                 await ChangeCategoryProduct(db, book);
                                 break;
-                            case Enums.AdminProductEnums.Delete_product:
+                            case Enums.adminProductEnums.Delete_product:
                                 DeleteProduct(db, id);
                                 break;
-                            case Enums.AdminProductEnums.Is_displayed:
+                            case Enums.adminProductEnums.Is_displayed:
                                 await FrontPageProduct(db, book);
                                 break;
                         }
@@ -970,5 +970,13 @@ namespace Webbshop.Queries
                 Console.WriteLine(ex.StackTrace);
             }
         }
+
+
+        //Fix uppercase input for all char input 
+        // focus on finsihing the statistics and the customer querries for the admin 
+        // create mongo db cluster and connect to the database, think of what queries you can do 
+
+
+
     }
 }

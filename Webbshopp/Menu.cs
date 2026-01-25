@@ -195,6 +195,9 @@ namespace Webbshop
                         case Enums.adminEnums.Add_product:
                             await AdminCategory.AddProduct();
                             break;
+                        case Enums.adminEnums.Statistics:
+                            StatisticQuerries.ShowStatistics();
+                            break;
                     }
                 }
                 else
