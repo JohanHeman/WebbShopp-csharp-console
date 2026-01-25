@@ -93,11 +93,13 @@ namespace Webbshop.Queries
                 
                     if(book != null)
                     {
-                        List<string> bookWindow = new List<string> { book.Information , book.Price.ToString() + "$" + " In stock: " + book.InStock + " press c to add to cart."}
+                        List<string> bookWindow = new List<string> { book.Information , book.Price.ToString() + "$" + " In stock: " + book.InStock + " press C to add to cart."}
     ;                   var window = new Window(book.Name, 1, 1, bookWindow);
                         window.Draw();
+                        Console.WriteLine("Press any key to go back");
                         ConsoleKeyInfo key = Console.ReadKey(true);
-                        if (key.KeyChar == 'c')
+                        char inputChar = char.ToUpper(key.KeyChar);
+                        if (inputChar == 'C')
                         {
                            CartQueries.AddToCart(db,book);
                         }

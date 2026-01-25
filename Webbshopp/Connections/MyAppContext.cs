@@ -1,4 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Options;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -32,7 +34,10 @@ namespace Webbshop.Connections
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
-            optionsBuilder.UseSqlServer("Server=JOHANPC;Database=Webbshopp;Trusted_Connection=True;TrustServerCertificate=true");
+            var config = new ConfigurationBuilder().AddUserSecrets<Program>().Build();
+            var connString = config["MySettings:ConnectionString"];
+
+            optionsBuilder.UseSqlServer(connString);
         }
     }
 }

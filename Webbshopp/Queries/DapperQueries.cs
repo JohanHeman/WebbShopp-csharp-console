@@ -1,6 +1,7 @@
 ﻿using Dapper;
 using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal;
+using Microsoft.Extensions.Configuration;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.Design;
@@ -18,10 +19,12 @@ namespace Webbshop.Queries
     {
         public static List<Category> GetCategories()
         {
-            string connectionString = "data source=JohanPC; initial catalog=Webbshopp; Integrated Security=True; TrustServerCertificate=True;";
+
+            var config = new ConfigurationBuilder().AddUserSecrets<Program>().Build();
+            var connString = config["MySettings:ConnectionString"];
             try
             {
-                using (var connection = new SqlConnection(connectionString))
+                using (var connection = new SqlConnection(connString))
                 {
                     string sql = "SELECT * FROM Categories";
 
@@ -38,10 +41,11 @@ namespace Webbshop.Queries
 
         public static List<Product> GetBooks()
         {
-            string connectionString = "data source=JohanPC; initial catalog=Webbshopp; Integrated Security=True; TrustServerCertificate=True;";
+            var config = new ConfigurationBuilder().AddUserSecrets<Program>().Build();
+            var connString = config["MySettings:ConnectionString"];
             try
             {
-                using(var connection = new SqlConnection(connectionString))
+                using(var connection = new SqlConnection(connString))
                 {
                     Console.WriteLine("Bookname: ");
                     string answer = Console.ReadLine();

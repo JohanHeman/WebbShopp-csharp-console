@@ -17,14 +17,14 @@ namespace Webbshop
 
         public static async Task StartMenu()
         {
-            // using var db and then getting the list of all the products
+            
 
             using(var db = new MyAppContext())
             {
                 while (true)
                 {
                     var products = await db.Products.Where(p => p.IsDisplayed).Include(p => p.Author).Take(3).ToListAsync();
-                    // later in this the names of the books will be from the database, isDeal= true
+                    
                     Console.Clear();
                     List<string> welcomeText = new List<string> { "Welcome to the Book store. ", "We provide books" };
 
@@ -63,53 +63,61 @@ namespace Webbshop
                     menuWindow.Draw();
                     Console.WriteLine("Press 'q' to quit");
 
-                    ConsoleKeyInfo key = Console.ReadKey(true);
+                    bool validInput = false;
 
-                    if (key.KeyChar == 'q') break;
+                    ConsoleKeyInfo key = Console.ReadKey(true);
+                    char inputChar = char.ToUpper(key.KeyChar);
+
+                    
+
+                    if (inputChar == 'Q') break;
 
 
                     else
                     {
-                        if (int.TryParse(key.KeyChar.ToString(), out int input))
+                        if (int.TryParse(inputChar.ToString(), out int input))
                         {
 
                             switch ((Enums.HomeEnums)input)
                             {
                                 case Enums.HomeEnums.Customer_menu:
                                     CustomerMenu();
+                                    validInput = true;
                                     break;
                                 case Enums.HomeEnums.Admin_menu:
                                     await AdminMenu();
                                     continue;
-                                
-
                             }
                         }
 
                         else
                         {
-                            switch(key.KeyChar)
+                            switch(inputChar)
                             {
                                 case 'A':
-                                    //function to show bookone
+                                    ShowBook(bookOne);
+                                    validInput = true;
                                     break;
                                 case 'B':
-                                    //function to show booktwo
+                                    ShowBook(bookTwo);
+                                    validInput = true;
                                     break;
                                 case 'C':
-                                    //function to show bookthree
+                                    ShowBook(bookThree);
+                                    validInput = true;
                                     break;
                             }
                         }
 
+                        if(!validInput)
+                        {
                             Console.Clear();
-                        Console.WriteLine("Not a valid input please try again");
-                        Console.WriteLine("Press any key to go back");
+                            Console.WriteLine("Not a valid input please try again");
+                            Console.WriteLine("Press any key to go back");
 
-                        Console.ReadKey(true);
-                        
+                            Console.ReadKey(true);
+                        }
                     }
-
                 }
                 Console.Clear();
                 Console.WriteLine("Thank you for visiting. Please come again!");
@@ -270,5 +278,18 @@ namespace Webbshop
             }
         }
 
+        public static void ShowBook(Product book)
+        {
+            if(book != null)
+            {
+                NavigationQueries.InfoBook(book.Id);
+            }
+            else
+            {
+                Console.WriteLine("There is currently no book here");
+                Console.ReadKey(true);
+                return;
+            }
+        }
     }
 }

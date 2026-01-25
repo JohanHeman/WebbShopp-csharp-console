@@ -22,11 +22,11 @@ namespace Webbshop.Queries
 
             using (var db = new Connections.MyAppContext())
             {
-                List<Category> categories = DapperQueries.GetCategories(); // gets the items from dapper querry into a list 
-
-                Window window = Helpers.ShowCategories(categories);
                 while (true)
                 {
+                    List<Category> categories = DapperQueries.GetCategories(); 
+
+                    Window window = Helpers.ShowCategories(categories);
                     Console.Clear();
                     window.Draw();
                     Console.WriteLine("Press 'd' to delete 'a' to add a category or 'q' to quit");
@@ -41,12 +41,13 @@ namespace Webbshop.Queries
                             var catToRemove = await GetCatToRemove(db);
                             if (catToRemove != null)
                             {
-                                await DeleteCategory(db, catToRemove.Id);
+                                await DeleteCategory(db, catToRemove);
+                                continue;
                             }
                             break;
                         case 'a':
                             await AddCategory(db);
-                            break;
+                            continue;
 
                         default:
                             if (int.TryParse(key.KeyChar.ToString(), out int input))
@@ -192,16 +193,16 @@ namespace Webbshop.Queries
             }
         }
 
-        public static async Task<Category?> GetCatToRemove(MyAppContext db)
+        public static async Task<Category?> GetCatToRemove(MyAppContext db) // this function gets the category the user wants to delete 
         {
-            List<Category> categories = DapperQueries.GetCategories();
-
-            Window window = Helpers.ShowCategories(categories);
-
             Category? catToDelete = null;
 
             while (true)
             {
+                Console.Clear();
+                List<Category> categories = DapperQueries.GetCategories();
+
+                Window window = Helpers.ShowCategories(categories);
                 Console.Clear();
                 window.Draw();
                 Console.WriteLine("Choose a category to delete press 'q' to quit");
@@ -235,37 +236,38 @@ namespace Webbshop.Queries
                     continue;
                 }
             }
+
             return catToDelete;
         }
 
-        public static async Task DeleteCategory(MyAppContext db, int id)
+        public static async Task DeleteCategory(MyAppContext db, Category category) // this function deletes the categoru that the user wants to delete
         {
-            List<Category> categories = DapperQueries.GetCategories();
 
-            Window window = Helpers.ShowCategories(categories);
-
-            var books = await db.Products.Where(b => b.CategoryId == id).ToListAsync();
+            var books = await db.Products.Where(b => b.CategoryId == category.Id).ToListAsync();
 
             while (true)
             {
-                Console.Clear();
+                
+                List<Category> categories = DapperQueries.GetCategories();
+
+                Window window = Helpers.ShowCategories(categories);
                 window.Draw();
 
                 Console.WriteLine("Choose a category to move the products to from the removed category. press 'q' to quit");
 
                 string input = Console.ReadLine();
+
                 if (input == "q")
                 {
                     Console.Clear();
                     break;
                 }
 
-                var category = await db.Categories.FirstOrDefaultAsync(c => c.Id == id);
                 if (category != null)
                 {
                     if (int.TryParse(input, out int categoryId))
                     {
-                        if (categoryId == id)
+                        if (categoryId == category.Id)
                         {
                             Console.WriteLine("You cant move items to a category you are about to delete. ");
                             Console.ReadKey(true);
@@ -276,7 +278,7 @@ namespace Webbshop.Queries
                         {
                             foreach (var item in books)
                             {
-                                item.Category = newCategory;
+                                item.CategoryId = newCategory.Id;
                             }
                             try
                             {
@@ -292,6 +294,10 @@ namespace Webbshop.Queries
                                 Console.WriteLine("Something went wrong ");
                                 Console.WriteLine(ex.StackTrace);
                             }
+                        }
+                        else
+                        {
+                            Console.WriteLine("Cant be null"); 
                         }
                     }
                 }
