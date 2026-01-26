@@ -1,4 +1,5 @@
-﻿using WindowDemo;
+﻿using Webbshop.Models;
+using WindowDemo;
 
 namespace Webbshop
 {
@@ -6,12 +7,23 @@ namespace Webbshop
     {
         static async Task Main(string[] args)
         {
-            // What i did 
-            // Added so users can see info on categories they choose and it shows price and information about product, 
-            // also on more info there should be add to cart button
-            // check on doing in trello 
 
-            await Menu.StartMenu();
+            Console.WriteLine("Hello! do you want to login? Y/N");
+
+            ConsoleKeyInfo key = Console.ReadKey(true);
+
+            char inputChar = char.ToUpper(key.KeyChar);
+
+            if(inputChar == 'Y')
+            {
+                User user = Helpers.SignIn();
+                await Menu.StartMenu(user);
+
+            }
+            else
+            {
+                await Menu.StartMenu(null);
+            }
         }
     }
 }

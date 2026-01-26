@@ -85,7 +85,7 @@ namespace Webbshop.Queries
 
         }
 
-        public static void ShowCart()
+        public static void ShowCart(User? currentUser)
         {
             Console.Clear();
             try
@@ -136,7 +136,7 @@ namespace Webbshop.Queries
                                     return;
                                 case 'c':
                                     Console.Clear();
-                                    PaymentQueries.CartToCheckOut(db);
+                                    PaymentQueries.CartToCheckOut(db, currentUser);
                                     break;
 
                                 default:

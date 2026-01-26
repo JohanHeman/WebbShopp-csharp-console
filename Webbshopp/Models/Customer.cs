@@ -13,6 +13,9 @@ namespace Webbshop.Models
         public string PhoneNumber { get; set; }
         public string Email { get; set; }
         public int Age { get; set; }
+
+        public int? UserId { get; set; }
+        public User? User { get; set; }
         public ICollection<Address> Adresses { get; set; } = new List<Address>();
     }
 }

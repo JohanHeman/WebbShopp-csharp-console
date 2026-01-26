@@ -15,7 +15,7 @@ namespace Webbshop
     {
 
 
-        public static async Task StartMenu()
+        public static async Task StartMenu(User user)
         {
             
 
@@ -67,7 +67,6 @@ namespace Webbshop
 
                     ConsoleKeyInfo key = Console.ReadKey(true);
                     char inputChar = char.ToUpper(key.KeyChar);
-
                     
 
                     if (inputChar == 'Q') break;
@@ -81,7 +80,7 @@ namespace Webbshop
                             switch ((Enums.HomeEnums)input)
                             {
                                 case Enums.HomeEnums.Customer_menu:
-                                    CustomerMenu();
+                                    CustomerMenu(user);
                                     validInput = true;
                                     break;
                                 case Enums.HomeEnums.Admin_menu:
@@ -124,7 +123,7 @@ namespace Webbshop
             }
         }
 
-        public static void CustomerMenu()
+        public static void CustomerMenu(User? currentUser)
         {
             while(true)
             {
@@ -148,7 +147,7 @@ namespace Webbshop
                             ShopMenu();
                             break;
                         case Enums.customerEnums.Shoppingcart:
-                            Queries.CartQueries.ShowCart();
+                            CartQueries.ShowCart(currentUser);
                             break;
                     }
                 }

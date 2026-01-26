@@ -174,13 +174,18 @@ namespace Webbshop.Queries
                             Console.WriteLine("Not a valid input!");
                             continue;
                         }
-
                     }
                 }
             }
         }
 
+        // add function for best selling category here 
 
+
+        // after that add crud operations for customer
+
+        // after that add option to sign up and login, and new table called users for erd and set  it up with efcore 
+        // IMPORTANT COMMIT BEFORE ADDING THE NEW TABLE ETC 
 
     }
 }

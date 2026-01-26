@@ -1,4 +1,8 @@
-﻿using System;
+﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
+using Microsoft.Identity.Client;
+using Microsoft.SqlServer.Server;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -64,5 +68,197 @@ namespace Webbshop
             return window;
         }
 
+
+        public static User SignIn()
+        {
+            using (var db = new MyAppContext())
+            {
+                Console.Clear();
+                Console.WriteLine("Press 'L' to login and 'R' to register");
+
+                ConsoleKeyInfo MenuKey = Console.ReadKey(true);
+
+                char menuInput = char.ToUpper(MenuKey.KeyChar);
+
+                if (menuInput == 'L')
+                {
+                    while(true)
+                    {
+                        Console.Write("Username: ");
+                        string userName = Console.ReadLine();
+
+                        Console.Write("Password: ");
+                        string password = Console.ReadLine();
+
+                        var user = db.Users.FirstOrDefault(u => u.UserName == userName && u.Password == password);
+
+                        if(user != null)
+                        {
+                            Console.WriteLine("Welcome back " + user.UserName);
+                            Console.ReadKey(true);
+                            return user;
+                        }
+                        else
+                        {
+                            Console.WriteLine("No user found. ");
+                            continue;
+                        }
+                    }
+                }
+
+                else if(menuInput == 'R')
+                {
+                    while(true)
+                    {
+                        Console.Write("Enter your Username: ");
+                        string username = Console.ReadLine();
+
+                        Console.Write("Enter your password: ");
+                        string password = Console.ReadLine();   
+
+                        var existingUser = db.Users.FirstOrDefault(u => u.UserName == username);
+
+                        if(existingUser != null)
+                        {
+                            Console.WriteLine("The user allready exists. try with a different username");
+                            Console.ReadKey(true);
+                            continue;
+                        }
+                        else
+                        {
+                            User user = new User
+                            {
+                                UserName = username,
+                                Password = password
+                            };
+                            db.Users.Add(user);
+                            db.SaveChanges();
+                            Console.WriteLine("user " + username + " has bneen registered.");
+                            Console.ReadKey(true);
+                            return user;
+                        }
+
+                    }
+                }
+                return null;
+            }
+
+        }
+
+        public static Customer PromptCustomer(MyAppContext db, User? currentUser)
+        {
+            Console.Clear();
+
+            Customer customer;
+            Address address;
+
+
+            if (currentUser != null)
+            {
+                customer = db.Customers.Include(c => c.Adresses).ThenInclude(a => a.City).ThenInclude(cy => cy.Country)
+                             .FirstOrDefault(c => c.UserId == currentUser.Id);
+
+
+                if (customer != null && customer.Adresses.Any())
+                {
+                    return customer;
+                }
+
+                if(customer == null)
+                {
+                    customer = new Customer
+                    {
+                        UserId = currentUser.Id
+                    };
+                }
+
+            }
+            else
+            {
+                customer = new Customer();
+            }
+
+            Console.Write("Enter your name: ");
+            customer.Name = Console.ReadLine();
+
+            
+
+            while (true)
+            {
+                Console.Write("Enter your phoneNumber: ");
+                string num = Console.ReadLine();
+                if (!num.All(char.IsDigit))
+                {
+                    Console.WriteLine("Must be a valid number");
+                    continue;
+                }
+                customer.PhoneNumber = num;
+                break;
+            }
+
+            while (true)
+            {
+                Console.Write("Enter your email: ");
+                string email = Console.ReadLine();
+                if (!email.Contains('@'))
+                {
+                    Console.WriteLine("Not a valid email");
+                    continue;
+                }
+                customer.Email = email;
+                break;
+            }
+
+            while (true)
+            {
+                Console.Write("Enter your age: ");
+                if (!int.TryParse(Console.ReadLine(), out int age) || age <= 14)
+                {
+                    Console.WriteLine("Not a valid age");
+                    continue;
+                }
+                customer.Age = age;
+                break;
+            }
+
+            Console.Write("Enter country: ");
+            string country = Console.ReadLine().Trim();
+
+            Console.Write("Enter city: ");
+            string city = Console.ReadLine().Trim();
+
+            Console.Write("Enter street: ");
+            string street = Console.ReadLine().Trim();
+
+
+            address = new Address { Street = street };
+
+            var existingCountry = db.Countries.FirstOrDefault(c => c.Name == country);
+            if (existingCountry == null)
+            {
+                existingCountry = new Country { Name = country };
+                db.Countries.Add(existingCountry);
+                db.SaveChanges();
+            }
+
+            var existingCity = db.Cities.FirstOrDefault(c => c.Name == city && c.CountryId == existingCountry.Id);
+            if (existingCity == null)
+            {
+                existingCity = new City { Name = city, CountryId = existingCountry.Id };
+                db.Cities.Add(existingCity);
+                db.SaveChanges();
+            }
+
+            address.City = existingCity;
+            customer.Adresses.Add(address);
+
+
+            if (!db.Customers.Any(c => c.Id == customer.Id))
+                db.Customers.Add(customer);
+
+            db.SaveChanges();
+
+            return customer;
+        }
     }
 }
