@@ -24,6 +24,12 @@ namespace Webbshop
             {
                 await Menu.StartMenu(null);
             }
+            // to dos 
+            // make it so adminaccount can change other users to admin if he wants to ( a new function)
+            // find more statistic querries to 
+            //customer crud querries
+            // make it so only admin menu can be if user is admin
+            //mongodb
         }
     }
 }

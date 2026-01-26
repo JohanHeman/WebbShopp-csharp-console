@@ -970,13 +970,5 @@ namespace Webbshop.Queries
                 Console.WriteLine(ex.StackTrace);
             }
         }
-
-
-        //Fix uppercase input for all char input 
-        // focus on finsihing the statistics and the customer querries for the admin 
-        // create mongo db cluster and connect to the database, think of what queries you can do 
-
-
-
     }
 }

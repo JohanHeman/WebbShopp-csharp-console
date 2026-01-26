@@ -82,14 +82,23 @@ namespace Webbshop
 
                 if (menuInput == 'L')
                 {
-                    while(true)
+                    Console.WriteLine("Press q to quit at any time ");
+                    while (true)
                     {
                         Console.Write("Username: ");
                         string userName = Console.ReadLine();
+                        if(userName == "q")
+                        {
+                            break;
+                        }
 
                         Console.Write("Password: ");
                         string password = Console.ReadLine();
 
+                        if(password == "q")
+                        {
+                            break;
+                        }
                         var user = db.Users.FirstOrDefault(u => u.UserName == userName && u.Password == password);
 
                         if(user != null)
@@ -110,12 +119,14 @@ namespace Webbshop
                 {
                     while(true)
                     {
+                        Console.WriteLine("Press 'q' to quit");
                         Console.Write("Enter your Username: ");
                         string username = Console.ReadLine();
+                        if (username == "q") break;
 
                         Console.Write("Enter your password: ");
-                        string password = Console.ReadLine();   
-
+                        string password = Console.ReadLine();
+                        if (password == "q") break;
                         var existingUser = db.Users.FirstOrDefault(u => u.UserName == username);
 
                         if(existingUser != null)
@@ -129,7 +140,8 @@ namespace Webbshop
                             User user = new User
                             {
                                 UserName = username,
-                                Password = password
+                                Password = password,
+                                IsAdmin = false
                             };
                             db.Users.Add(user);
                             db.SaveChanges();

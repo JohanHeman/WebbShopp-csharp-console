@@ -35,202 +35,6 @@ namespace Webbshop.Queries
 
 
 
-                //if (currentUser != null)
-                //{
-                //    customer = db.Customers.Include(c => c.Adresses).ThenInclude(a => a.City)
-                //        .ThenInclude(c => c.Country).FirstOrDefault(c => c.UserId == currentUser.Id);
-
-
-                //    if(customer == null || !customer.Adresses.Any())
-                //    {
-                //        customer = Helpers.PromptCustomer(db, currentUser);
-                //    }
-
-                //    address = customer.Adresses.FirstOrDefault();
-                //}
-                //else
-                //{
-                //    customer = Helpers.PromptCustomer(db, null);
-
-
-                //    var 
-                //}
-
-
-                    //    customer = db.Customers.Include(c => c.Adresses).ThenInclude(a => a.City).FirstOrDefault(c => c.UserId == currentUser.Id);
-
-                    //    if (customer == null)
-                    //    {
-                    //        customer = new Customer
-                    //        {
-                    //            UserId = currentUser.Id,
-                    //            Name = currentUser.UserName
-                    //        };
-                    //        db.Customers.Add(customer);
-                    //        db.SaveChanges();
-                    //    }
-
-                    //    address = customer.Adresses.FirstOrDefault();
-
-                    //    if(address == null)
-                    //    {
-                    //        Console.Write("Enter country: ");
-                    //        string country = Console.ReadLine().Trim();
-
-                    //        Console.Write("Enter city: ");
-                    //        string city = Console.ReadLine().Trim();
-
-                    //        Console.Write("Enter street: ");
-                    //        string street = Console.ReadLine().Trim();
-
-                    //        address = new Address { Street = street };
-
-                    //        var existingCountry = db.Countries.FirstOrDefault(c => c.Name == country);
-                    //        if (existingCountry == null)
-                    //        {
-                    //            existingCountry = new Country { Name = country };
-                    //            db.Countries.Add(existingCountry);
-                    //            db.SaveChanges();
-                    //        }
-
-                    //        var existingCity = db.Cities.FirstOrDefault(c => c.Name == city && c.CountryId == existingCountry.Id);
-                    //        if (existingCity == null)
-                    //        {
-                    //            existingCity = new City { Name = city, CountryId = existingCountry.Id };
-                    //            db.Cities.Add(existingCity);
-                    //            db.SaveChanges();
-                    //        }
-
-                    //        address.City = existingCity;
-                    //        customer.Adresses.Add(address);
-                    //        db.SaveChanges();
-                    //    }
-                    //}
-                    //else
-                    //{
-
-                    //    Console.Write("Enter your name: ");
-                    //    string name = Console.ReadLine();
-
-                    //    Console.Write("Enter country: ");
-                    //    string country = Console.ReadLine().Trim();
-
-                    //    Console.Write("Enter city: ");
-                    //    string city = Console.ReadLine().Trim();
-
-                    //    Console.Write("Enter city street");
-                    //    string street = Console.ReadLine().Trim();
-
-                    //    var existingUser = db.Customers.Include(c => c.Adresses).ThenInclude(a => a.City).FirstOrDefault(c => c.Name == name);
-
-                    //    if (existingUser == null)
-                    //    {
-                    //        customer = new Customer();
-                    //        customer.Name = name;
-                    //        while (true)
-                    //        {
-                    //            Console.Write("Enter your phoneNumber:");
-                    //            string num = Console.ReadLine();
-
-                    //            if (!num.All(char.IsDigit))
-                    //            {
-                    //                Console.WriteLine("must be a valid number");
-                    //                continue;
-
-                    //            }
-
-                    //            customer.PhoneNumber = num;
-                    //            break;
-                    //        }
-
-                    //        while (true)
-                    //        {
-                    //            Console.Write("Enter your email: ");
-                    //            string email = Console.ReadLine();
-                    //            if (!email.Contains('@'))
-                    //            {
-                    //                Console.WriteLine("Not a valid email. ");
-                    //                continue;
-                    //            }
-                    //            customer.Email = email;
-                    //            break;
-                    //        }
-
-                    //        while (true)
-                    //        {
-                    //            Console.Write("Enter your age");
-                    //            if (!int.TryParse(Console.ReadLine(), out int age))
-                    //            {
-                    //                Console.WriteLine("Not a valid age");
-                    //                continue;
-
-                    //            }
-                    //            if (age <= 14)
-                    //            {
-                    //                Console.WriteLine("Not a valid age");
-                    //                continue;
-                    //            }
-                    //            customer.Age = age;
-                    //            break;
-                    //        }
-
-                    //        address = new Address();
-                    //        address.Street = street;
-
-                    //        var existingCountry = db.Countries.FirstOrDefault(c => c.Name == country);
-
-                    //        if (existingCountry == null)
-                    //        {
-                    //            existingCountry = new Country { Name = country };
-                    //            db.Countries.Add(existingCountry);
-                    //            db.SaveChanges();
-                    //        }
-
-                    //        var existingCity = db.Cities.FirstOrDefault(c => c.Name == city.Trim() && c.CountryId == existingCountry.Id);
-                    //        if (existingCity == null)
-                    //        {
-                    //            existingCity = new City { Name = city.Trim(), CountryId = existingCountry.Id };
-                    //            db.Cities.Add(existingCity);
-                    //            db.SaveChanges();
-                    //        }
-
-                    //        address.City = existingCity;
-                    //        customer.Adresses.Add(address);
-                    //        db.Customers.Add(customer);
-                    //        db.SaveChanges();
-                    //        Console.WriteLine("Customer is succesfully added! Now moving on to the address");
-
-                    //    }
-                    //    else
-                    //    {
-                    //        customer = existingUser;
-                    //        address = existingUser.Adresses.FirstOrDefault(a => a.Street == street && a.City.Name == city);
-
-                    //        if (address == null)
-                    //        {
-                    //            address = new Address
-                    //            {
-                    //                Street = street
-                    //            };
-
-                    //            var existingCountry = db.Countries.FirstOrDefault(c => c.Name == country);
-                    //            var existingCity = db.Cities.FirstOrDefault(c => c.Name == city && c.CountryId == existingCountry.Id);
-
-                    //            address.City = existingCity;
-                    //            customer.Adresses.Add(address);
-                    //            db.SaveChanges();
-
-                    //        }
-                    //        else
-                    //        {
-                    //            Console.WriteLine("Existing customer found. Moving to checkout...");
-                    //        }
-
-                    //        Thread.Sleep(1000);
-                    //    }
-
-                    //}
-                    // create new checkout 
 
 
                     Checkout checkout = new Checkout()
@@ -460,6 +264,7 @@ namespace Webbshop.Queries
                 payment.CardholderName = customer.Name;
                 payment.PaymentMethod = paymentMethod;
                 payment.CheckOut = checkout;
+                checkout.IsPaid = true;
                 while (true)
                 {
 
@@ -515,6 +320,7 @@ namespace Webbshop.Queries
             payment.Amount = checkout.TotalAmount;
             payment.CheckOut = checkout;
             payment.PaymentMethod = paymentMethod;
+            checkout.IsPaid = true;
 
             return payment;
 
