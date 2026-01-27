@@ -23,10 +23,7 @@ namespace Webbshop.Queries
         {
             while (true)
             {
-                Console.Clear();
-                List<string> productList = Helpers.EnumsToLists(typeof(Enums.adminCustomerEnums));
-                var window = new Window("AdminMenu", 2, 0, productList);
-                window.Draw();
+                Console.WriteLine("Press 'Y' to continue");
                 Console.WriteLine("Press 'Q' to go back.");
                 ConsoleKeyInfo key = Console.ReadKey(true);
                 char inputChar = char.ToUpper(key.KeyChar);
@@ -36,14 +33,9 @@ namespace Webbshop.Queries
                     return;
                 }
 
-                if (int.TryParse(inputChar.ToString(), out int input))
+                if (inputChar == 'Y')
                 {
-                    switch ((Enums.adminCustomerEnums)input)
-                    {
-                        case Enums.adminCustomerEnums.Change_customer_info:
-                            ChangeCustomerInfo();
-                            break;
-                    }
+                        ChangeCustomerInfo();
                 }
 
                 else
@@ -407,13 +399,13 @@ namespace Webbshop.Queries
                             address.CityId = city.Id;
                             db.SaveChanges();
 
-                            Console.WriteLine($"Successfully added {newCountry.Name} / {city.Name} to customer.");
+                            Console.WriteLine($"Successfully added {newCountry.Name} and {city.Name} to customer.");
                             Console.ReadKey(true);
                             return customer;
                         }
                         catch (DbUpdateException e)
                         {
-                            Console.WriteLine("Something went wrong when adding the country/city.");
+                            Console.WriteLine("Something went wrong");
                             Console.WriteLine(e.StackTrace);
                             Console.ReadKey(true);
                         }
@@ -550,6 +542,9 @@ namespace Webbshop.Queries
                                 case Enums.ChangeCustomerInfo.Delete_customer:
                                     DeleteCustomer(customer, db);
                                     break;
+                                case Enums.ChangeCustomerInfo.Order_history:
+                                    ShowCustomerHistory(customer, db);
+                                    break;
                             }
                         }
                         return customer; 
@@ -598,6 +593,54 @@ namespace Webbshop.Queries
                     return;
                 }
             }
+        }
+
+
+        public static void ShowCustomerHistory(Customer customer, MyAppContext db)
+        {
+
+            // nice querry to get the information needed to display the items for order history 
+            // first include starts the first chain including items
+            // second include starts over a new chain from payments and includes other necesarry items. 
+            // then gets the customer whos order history we want to see
+
+            var orderHistory = db.Payments
+                 .Include(p => p.CheckOut)
+                     .ThenInclude(c => c.Address)
+                         .ThenInclude(a => a.Customers)
+                 .Include(p => p.CheckOut)
+                    .ThenInclude(c => c.Address)
+                        .ThenInclude(a => a.City)
+                    .Include(p => p.CheckOut)
+                        .ThenInclude(co => co.CheckoutProducts)
+                            .ThenInclude(cp => cp.Product)
+                   .Where(p => p.CheckOut.Address.Customers.Any(c => c.Id == customer.Id)).ToList();
+
+            if (!orderHistory.Any())
+            {
+                Console.WriteLine("This customer has no orders.");
+            }
+
+            Console.Clear();
+            foreach (var item in orderHistory)
+            {
+                var checkout = item.CheckOut;
+                var products = checkout.CheckoutProducts;
+
+                Console.WriteLine($"Order #{checkout.Id}");
+                Console.WriteLine($"Total amount: {checkout.TotalAmount}");
+                Console.WriteLine($"Paid amount: {item.Amount}");
+                Console.WriteLine($"Address: {checkout.Address.Street}, {checkout.Address.City.Name}");
+                Console.WriteLine("Products:");
+
+                foreach (var i in products)
+                {
+                    Console.WriteLine($"{i.Product.Name} x{i.Quantity} @ {i.Product.Price}");
+                }
+            }
+
+            Console.WriteLine("Press any key to go back");
+            Console.ReadKey(true);
         }
     }
 }

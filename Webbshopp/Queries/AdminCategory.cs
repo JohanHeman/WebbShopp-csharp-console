@@ -802,24 +802,22 @@ namespace Webbshop.Queries
 
                         if(!string.IsNullOrWhiteSpace(answer))
                         {
-
-                        
-                        if (int.TryParse(answer, out int id))
-                        {
-                                var supplier = await db.Suppliers.FirstOrDefaultAsync(s => s.Id == id);
-                                if (supplier != null)
-                                {
-                                    book.Supplier = supplier;
-                                    break;
-                                }
-                                else
-                                {
-                                    Console.WriteLine("Supplier cant be null");
-                                    Console.ReadKey(true);
-                                    continue;
+                            if (int.TryParse(answer, out int id))
+                            {
+                                    var supplier = await db.Suppliers.FirstOrDefaultAsync(s => s.Id == id);
+                                    if (supplier != null)
+                                    {
+                                        book.Supplier = supplier;
+                                        break;
+                                    }
+                                    else
+                                    {
+                                        Console.WriteLine("Supplier cant be null");
+                                        Console.ReadKey(true);
+                                        continue;
+                                    }
                                 }
                             }
-                        }
                         Console.WriteLine("Id must be a valid number");
                         Console.ReadKey(true);
                         continue;
@@ -831,13 +829,11 @@ namespace Webbshop.Queries
                         Console.WriteLine("Who is the autohor of the book? press 'n' to add a new author");
 
                         var authors = await db.Authors.ToListAsync();
-                        List<string> authorList = new List<string>();
+                       
                         foreach (var a in authors)
                         {
-                            authorList.Add($"{a.Id}: {a.Name}");
+                            Console.WriteLine($"{a.Id}: {a.Name}");
                         }
-                        var authorWindow = new Window("Authors", 0, 2, authorList);
-                        authorWindow.Draw();
 
                         string? answer = Console.ReadLine();
                         if (answer == "q")
@@ -850,6 +846,7 @@ namespace Webbshop.Queries
                             Console.Clear();
                             Console.WriteLine("What is the authors name? ");
                             string? name = Console.ReadLine();
+
                             if(name != null)
                             {
                                 Author author = new Author{ Name = name };
@@ -859,26 +856,23 @@ namespace Webbshop.Queries
                             }
                         }
 
-                        if(string.IsNullOrWhiteSpace(answer))
-                        {
-
                         
                         if (int.TryParse(answer, out int id))
                         {
-                                var author = await db.Authors.FirstOrDefaultAsync(a => a.Id == id);
-                                if (author != null)
-                                {
-                                    book.Author = author;
-                                    break;
-                                }
-                                else
-                                {
-                                    Console.WriteLine("Author cant be null");
-                                    Console.ReadKey(true);
-                                    continue;
-                                }
+                            var author = await db.Authors.FirstOrDefaultAsync(a => a.Id == id);
+                            if (author != null)
+                            {
+                                book.Author = author;
+                                break;
+                            }
+                            else
+                            {
+                                Console.WriteLine("Author cant be null");
+                                Console.ReadKey(true);
+                                continue;
                             }
                         }
+                        
                         Console.WriteLine("must be a valid id");
                         Console.ReadKey(true);
                         continue;

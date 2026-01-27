@@ -43,9 +43,7 @@ namespace Webbshop
 
         public enum adminCustomerEnums
         {
-            Change_customer_info = 1,
-            Order_history,
-            Admin_access
+            Change_customer_info = 1
         }
 
         public enum adminProductEnums
@@ -75,6 +73,8 @@ namespace Webbshop
             Email,
             Age,
             address,
+            Order_history,
+            Admin_access,
             Delete_customer
         }
     }
