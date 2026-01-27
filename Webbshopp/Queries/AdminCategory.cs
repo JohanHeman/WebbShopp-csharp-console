@@ -242,12 +242,22 @@ namespace Webbshop.Queries
 
         public static async Task DeleteCategory(MyAppContext db, Category category) // this function deletes the categoru that the user wants to delete
         {
-
-            var books = await db.Products.Where(b => b.CategoryId == category.Id).ToListAsync();
+            var books = await db.Products
+                .Where(b => b.CategoryId == category.Id)
+                .ToListAsync();
+          
+            if (!books.Any())
+            {
+                db.Categories.Remove(category);
+                await db.SaveChangesAsync();
+                Console.Clear();
+                Console.WriteLine("Category had no products and was deleted.");
+                Console.ReadKey(true);
+                return;
+            }
 
             while (true)
             {
-                
                 List<Category> categories = DapperQueries.GetCategories();
 
                 Window window = Helpers.ShowCategories(categories);

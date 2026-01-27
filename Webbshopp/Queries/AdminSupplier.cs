@@ -145,7 +145,18 @@ namespace Webbshop.Queries
             Console.Clear();
             try
             {
-                var books = await db.Products.Where(b => b.SupplierId == supplier.Id).ToListAsync();
+                var books = await db.Products
+                    .Where(b => b.SupplierId == supplier.Id)
+                    .ToListAsync();
+               
+                if (!books.Any())
+                {
+                    db.Suppliers.Remove(supplier);
+                    await db.SaveChangesAsync();
+                    Console.WriteLine("Supplier had no products and was deleted.");
+                    Console.ReadKey(true);
+                    return;
+                }
 
                 var suppliers = await db.Suppliers.ToListAsync();
                 var window = Helpers.GetSuppliers(db, suppliers);
@@ -176,6 +187,7 @@ namespace Webbshop.Queries
                             db.Suppliers.Remove(supplier);
                             await db.SaveChangesAsync();
                             Console.WriteLine("Succesfully deleted.");
+                            Console.ReadKey(true);
                             break;
                         }
                     }
