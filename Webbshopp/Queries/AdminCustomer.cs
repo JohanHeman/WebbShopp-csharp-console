@@ -1,5 +1,6 @@
 ﻿using Azure.Identity;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Identity.Client;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
@@ -80,7 +81,6 @@ namespace Webbshop.Queries
             }
         }
 
-
         public static void SearchCustomer()
         {
             try
@@ -148,7 +148,6 @@ namespace Webbshop.Queries
                 }
             }
         }
-
 
         public static Customer ChangePhonenUmber(Customer customer, MyAppContext db)
         {
@@ -266,7 +265,6 @@ namespace Webbshop.Queries
             return customer;
         }
 
-
         public static Customer ChangeCountry(Customer customer, MyAppContext db)
         {
             var address = customer.Adresses.FirstOrDefault();
@@ -308,12 +306,14 @@ namespace Webbshop.Queries
 
             }
 
-            while(true)
+            while (true)
             {
                 Console.Clear();
                 Console.Write("Enter the country: ");
                 string country = Console.ReadLine();
-                var existingCountry = db.Countries.Include(c => c.Cities).FirstOrDefault(c => c.Name == country);
+                var existingCountry = db.Countries
+                    .Include(c => c.Cities)
+                    .FirstOrDefault(c => c.Name == country);
 
                 if (existingCountry != null)
                 {
@@ -327,7 +327,7 @@ namespace Webbshop.Queries
 
                     if (input == "Q") return customer;
 
-                    if(input == "N")
+                    if (input == "N")
                     {
                         try
                         {
@@ -344,16 +344,17 @@ namespace Webbshop.Queries
                             db.SaveChanges();
 
                             Console.WriteLine("succesfully added " + city.Name + " to customer");
+                            Console.ReadKey(true);
                             return customer;
                         }
-                        catch(DbUpdateException e)
+                        catch (DbUpdateException e)
                         {
                             Console.WriteLine("Something went wrong ");
                             Console.WriteLine(e.StackTrace);
                         }
                     }
 
-                    if (int.TryParse(input.ToString(), out int id))
+                    if (int.TryParse(input, out int id))
                     {
                         var city = existingCountry.Cities.FirstOrDefault(c => c.Id == id);
                         if (city != null)
@@ -361,13 +362,66 @@ namespace Webbshop.Queries
                             address.CityId = city.Id;
                             db.SaveChanges();
                             Console.WriteLine("Updated address for customer");
+                            Console.ReadKey(true);
                             return customer;
                         }
                         else
                         {
                             Console.WriteLine("No city with that id");
+                            Console.ReadKey(true);
                             continue;
                         }
+                    }
+                }
+                else
+                {
+                    Console.WriteLine("That country does not exist yet.");
+                    Console.WriteLine("Do you want to add it? (Y/N) or press 'Q' to quit");
+                    string choice = Console.ReadLine().ToUpper();
+
+                    if (choice == "Q")
+                        return customer;
+
+                    if (choice == "Y")
+                    {
+                        try
+                        {
+                            Country newCountry = new Country
+                            {
+                                Name = country
+                            };
+                            db.Countries.Add(newCountry);
+                            db.SaveChanges();
+
+                            Console.WriteLine("Enter the name of a city in this country:");
+                            string cityName = Console.ReadLine();
+
+                            City city = new City
+                            {
+                                Name = cityName,
+                                Country = newCountry
+                            };
+                            db.Cities.Add(city);
+                            db.SaveChanges();
+
+                            address.CityId = city.Id;
+                            db.SaveChanges();
+
+                            Console.WriteLine($"Successfully added {newCountry.Name} / {city.Name} to customer.");
+                            Console.ReadKey(true);
+                            return customer;
+                        }
+                        catch (DbUpdateException e)
+                        {
+                            Console.WriteLine("Something went wrong when adding the country/city.");
+                            Console.WriteLine(e.StackTrace);
+                            Console.ReadKey(true);
+                        }
+                    }
+                    else
+                    {
+                        Console.WriteLine("Country not added. Press any key to try again.");
+                        Console.ReadKey(true);
                     }
                 }
             }
@@ -445,10 +499,6 @@ namespace Webbshop.Queries
             }
         }
 
-
-        // make choose customers method return a chosen customer 
-        // call the function insde seartch customers and browsecustomers.
-
         public static Customer ChooseCustomer(MyAppContext db)
         {
             while(true)
@@ -497,6 +547,9 @@ namespace Webbshop.Queries
                                 case Enums.ChangeCustomerInfo.address:
                                     customer = ChangeAddress(customer, db);
                                     break;
+                                case Enums.ChangeCustomerInfo.Delete_customer:
+                                    DeleteCustomer(customer, db);
+                                    break;
                             }
                         }
                         return customer; 
@@ -511,6 +564,38 @@ namespace Webbshop.Queries
                 {
                     Console.WriteLine("Invalid input. Please enter a number or 'Q'. Press any key to try again.");
                     Console.ReadKey(true);
+                }
+            }
+        }
+        public static void DeleteCustomer(Customer customer,  MyAppContext db)
+        {
+            if(customer != null)
+            {
+                Console.WriteLine("Are you sure you want to delete customer " + customer.Name + "? All the data will be removed related to this customer.");
+                Console.WriteLine("Y/N");
+
+                ConsoleKeyInfo key = Console.ReadKey(true);
+                char inputChar = char.ToUpper(key.KeyChar);
+
+                if(inputChar == 'Y')
+                {
+                    try
+                    {
+                        db.Customers.Remove(customer);
+                        db.SaveChanges();
+                        Console.WriteLine("The customer has been deleted");
+                        Console.ReadKey(true);
+                        return;
+                    }
+                    catch(DbUpdateException e)
+                    {
+                        Console.WriteLine("Something went wrong");
+                        Console.WriteLine(e.StackTrace);
+                    }
+                }
+                else
+                {
+                    return;
                 }
             }
         }

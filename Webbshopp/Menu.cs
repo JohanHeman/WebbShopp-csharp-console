@@ -67,10 +67,8 @@ namespace Webbshop
 
                     ConsoleKeyInfo key = Console.ReadKey(true);
                     char inputChar = char.ToUpper(key.KeyChar);
-                    
 
                     if (inputChar == 'Q') break;
-
 
                     else
                     {

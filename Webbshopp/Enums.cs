@@ -44,10 +44,8 @@ namespace Webbshop
         public enum adminCustomerEnums
         {
             Change_customer_info = 1,
-            Delete_customer,
             Order_history,
-            Admin_access,
-            Back
+            Admin_access
         }
 
         public enum adminProductEnums
