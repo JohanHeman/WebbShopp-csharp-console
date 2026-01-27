@@ -11,7 +11,6 @@ namespace Webbshop.Queries
 {
     internal class AdminSupplier
     {
-
         public static async Task ShowSuppliers()
         {
             Console.Clear();

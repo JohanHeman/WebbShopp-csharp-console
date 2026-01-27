@@ -46,7 +46,6 @@ namespace Webbshop.Queries
             }
         }
 
-
         public static void ChangeCustomerInfo()
         {
             while (true)

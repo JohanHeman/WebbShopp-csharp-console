@@ -195,6 +195,11 @@ namespace Webbshop
                         case Enums.adminEnums.Statistics:
                             StatisticQuerries.ShowStatistics();
                             break;
+                        case Enums.adminEnums.Admins:
+                            AdminAcessFunction.AdminAcess();
+                            break;
+
+
                     }
                 }
                 else
@@ -291,5 +296,8 @@ namespace Webbshop
                 return;
             }
         }
+
+
+
     }
 }

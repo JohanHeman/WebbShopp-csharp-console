@@ -29,6 +29,7 @@ namespace Webbshop
             Customer_management,
             Statistics,
             supplier,
+            Admins,
             Home
         }
 
@@ -74,7 +75,6 @@ namespace Webbshop
             Age,
             address,
             Order_history,
-            Admin_access,
             Delete_customer
         }
     }
