@@ -45,7 +45,9 @@ namespace Webbshop
         {
             Change_customer_info = 1,
             Delete_customer,
-            Order_history
+            Order_history,
+            Admin_access,
+            Back
         }
 
         public enum adminProductEnums
@@ -66,6 +68,15 @@ namespace Webbshop
             Most_sold_products = 1,
             sold_past_hour,
             biggest_customer_groups
+        }
+
+        public enum ChangeCustomerInfo
+        {
+            Name = 1,
+            Phone_number,
+            Email,
+            Age,
+            address 
         }
     }
 }

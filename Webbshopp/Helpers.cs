@@ -234,13 +234,13 @@ namespace Webbshop
             }
 
             Console.Write("Enter country: ");
-            string country = Console.ReadLine().Trim();
+            string country = Console.ReadLine();
 
             Console.Write("Enter city: ");
-            string city = Console.ReadLine().Trim();
+            string city = Console.ReadLine();
 
             Console.Write("Enter street: ");
-            string street = Console.ReadLine().Trim();
+            string street = Console.ReadLine();
 
 
             address = new Address { Street = street };
@@ -272,5 +272,7 @@ namespace Webbshop
 
             return customer;
         }
+
+
     }
 }

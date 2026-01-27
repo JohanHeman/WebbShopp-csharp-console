@@ -31,12 +31,6 @@ namespace Webbshop.Queries
                 Customer customer = Helpers.PromptCustomer(db, currentUser);
                 Address address = customer.Adresses.First();
 
-
-
-
-
-
-
                     Checkout checkout = new Checkout()
                     {
                         TotalAmount = cart.TotalAmount,
