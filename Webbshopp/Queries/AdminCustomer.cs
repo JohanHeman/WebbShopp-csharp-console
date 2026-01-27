@@ -71,7 +71,7 @@ namespace Webbshop.Queries
                         SearchCustomer();
                         break;
                     case 'B':
-                        //browse function
+                        BrowseCustomers();
                         break;
                     default:
                         Console.WriteLine("Invalid input. ");
@@ -110,48 +110,7 @@ namespace Webbshop.Queries
                             Console.WriteLine($"{c.Id}: {c.Name}");
                         }
 
-                        Console.WriteLine("Enter the customer by choosing the id");
-
-                        if (int.TryParse(Console.ReadLine(), out int id))
-                        {
-                            var customer = db.Customers.Include(c => c.Adresses).FirstOrDefault(c => c.Id == id);
-                            if (customer != null)
-                            {
-                                Console.Clear();
-                                Console.WriteLine("What do you want to change on the customer? ");
-
-                                List<string> options = Helpers.EnumsToLists(typeof(Enums.ChangeCustomerInfo));
-                                var window = new Window("Options", 0, 2, options);
-                                Console.Clear();
-                                window.Draw();
-
-
-                                ConsoleKeyInfo key = Console.ReadKey(true);
-                                char inputChar = char.ToUpper(key.KeyChar);
-
-                                if (int.TryParse(inputChar.ToString(), out int input))
-                                {
-                                    switch ((Enums.ChangeCustomerInfo)input)
-                                    {
-                                        case Enums.ChangeCustomerInfo.Name:
-                                            customer = ChangeName(customer, db);
-                                            break;
-                                        case Enums.ChangeCustomerInfo.Phone_number:
-                                            customer = ChangePhonenUmber(customer, db);
-                                            break;
-                                        case Enums.ChangeCustomerInfo.Email:
-                                            customer = ChangeEmail(customer, db);
-                                            break;
-                                        case Enums.ChangeCustomerInfo.Age:
-                                            customer = ChangeAge(customer, db);
-                                            break;
-                                        case Enums.ChangeCustomerInfo.address:
-                                            customer = ChangeAddress(customer, db);
-                                            break;
-                                    }
-                                }
-                            }
-                        }
+                        ChooseCustomer(db);
                     }
                 }
             }
@@ -480,7 +439,8 @@ namespace Webbshop.Queries
                     {
                         Console.WriteLine($"{customer.Id}: {customer.Name}");
                     }
-                    ChooseCustomer()
+                    ChooseCustomer(db);
+                    break;
                 }
             }
         }
@@ -493,9 +453,15 @@ namespace Webbshop.Queries
         {
             while(true)
             {
-                Console.WriteLine("Enter the customer by choosing the id");
+                Console.WriteLine("Enter the customer by choosing the id or 'Q' to quit");
+                string inputLine = Console.ReadLine();
 
-                if (int.TryParse(Console.ReadLine(), out int id))
+                if (inputLine.Equals("Q", StringComparison.OrdinalIgnoreCase))
+                {
+                    return null;
+                }
+
+                if (int.TryParse(inputLine, out int id))
                 {
                     var customer = db.Customers.Include(c => c.Adresses).FirstOrDefault(c => c.Id == id);
                     if (customer != null)
@@ -533,7 +499,18 @@ namespace Webbshop.Queries
                                     break;
                             }
                         }
+                        return customer; 
                     }
+                    else
+                    {
+                        Console.WriteLine("No customer found with that ID. Press any key to try again.");
+                        Console.ReadKey(true);
+                    }
+                }
+                else
+                {
+                    Console.WriteLine("Invalid input. Please enter a number or 'Q'. Press any key to try again.");
+                    Console.ReadKey(true);
                 }
             }
         }
