@@ -76,7 +76,8 @@ namespace Webbshop
             Phone_number,
             Email,
             Age,
-            address 
+            address,
+            Delete_customer
         }
     }
 }

@@ -262,11 +262,14 @@ namespace Webbshop.Queries
                 }
                 try
                 {
-                    customer.PhoneNumber = age;
-                    db.SaveChanges();
-                    Console.WriteLine("The customer is succesfully updated.");
-                    Console.ReadKey(true);
-                    return customer;
+                    if(int.TryParse(age, out int customerAge))
+                    {
+                        customer.Age = customerAge;
+                        db.SaveChanges();
+                        Console.WriteLine("The customer is succesfully updated.");
+                        Console.ReadKey(true);
+                        return customer;
+                    }
                 }
                 catch (DbUpdateException ex)
                 {
@@ -297,7 +300,7 @@ namespace Webbshop.Queries
                         ChangeCountry(customer, db);
                         break;
                     case 2:
-                        //change street address
+                        ChangeStreet(customer, db);
                         break;
                 }
             }
@@ -308,10 +311,47 @@ namespace Webbshop.Queries
         public static Customer ChangeCountry(Customer customer, MyAppContext db)
         {
             var address = customer.Adresses.FirstOrDefault();
-            Console.Clear();
+            var addresses = customer.Adresses.ToList();
+            if(addresses.Count > 1)
+            {
+                while(true)
+                {
+                    Console.Clear();
+                    List<string> options = new List<string>();
+                    foreach(var item in addresses)
+                    {
+                        options.Add(item.Id.ToString() + ": " + item.Street);
+                    }
+                    var window = new Window("Options", 0, 2, options);
+                    window.Draw();
+
+                    Console.WriteLine("What address do you want to change? press 'Q' to quit");
+                    string answer = Console.ReadLine().ToUpper();
+                    if (answer == "Q")
+                        return customer;
+
+                    if(int.TryParse(answer, out int id))
+                    {
+                        var checkAddress = db.Addresses.FirstOrDefault(a => a.Id == id);
+                        if(address != null)
+                        {
+                            address = checkAddress;
+                            break;
+                        }
+                        else
+                        {
+                            Console.WriteLine("No address with that id");
+                            Console.ReadKey(true);
+                            continue;
+                        }
+                    }
+                }
+
+            }
 
             while(true)
             {
+                Console.Clear();
                 Console.Write("Enter the country: ");
                 string country = Console.ReadLine();
                 var existingCountry = db.Countries.Include(c => c.Cities).FirstOrDefault(c => c.Name == country);
@@ -368,6 +408,130 @@ namespace Webbshop.Queries
                         {
                             Console.WriteLine("No city with that id");
                             continue;
+                        }
+                    }
+                }
+            }
+        }
+
+        public static Customer ChangeStreet(Customer customer, MyAppContext db)
+        {
+            var address = customer.Adresses.FirstOrDefault();
+            var addresses = customer.Adresses.ToList();
+            if (addresses.Count > 1)
+            {
+                while (true)
+                {
+                    List<string> options = new List<string>();
+                    foreach (var item in addresses)
+                    {
+                        options.Add(item.Id.ToString() + ": " + item.Street);
+                    }
+                    var window = new Window("Options", 0, 2, options);
+                    window.Draw();
+
+                    Console.WriteLine("What address do you want to change? press 'Q' to quit");
+                    string answer = Console.ReadLine().ToUpper();
+                    if (answer == "Q")
+                        return customer;
+
+                    if (int.TryParse(answer, out int id))
+                    {
+                        var checkAddress = db.Addresses.FirstOrDefault(a => a.Id == id);
+                        if (address != null)
+                        {
+                            address = checkAddress;
+                            break;
+                        }
+                        else
+                        {
+                            Console.WriteLine("No address with that id");
+                            Console.ReadKey(true);
+                            continue;
+                        }
+                    }
+                }
+            }
+
+            Console.Clear();
+
+            while(true)
+            {
+                Console.WriteLine("Enter the new address name");
+                string name = Console.ReadLine();
+
+                address.Street = name;
+                db.SaveChanges();
+                Console.WriteLine("Updated street name to " + name);
+                Console.ReadKey(true);
+                return customer;
+            }
+
+        }
+
+        public static void BrowseCustomers()
+        {
+            using(var db = new MyAppContext())
+            {
+                while(true)
+                {
+                    var customers = db.Customers.ToList();
+                    foreach (var customer in customers)
+                    {
+                        Console.WriteLine($"{customer.Id}: {customer.Name}");
+                    }
+                    ChooseCustomer()
+                }
+            }
+        }
+
+
+        // make choose customers method return a chosen customer 
+        // call the function insde seartch customers and browsecustomers.
+
+        public static Customer ChooseCustomer(MyAppContext db)
+        {
+            while(true)
+            {
+                Console.WriteLine("Enter the customer by choosing the id");
+
+                if (int.TryParse(Console.ReadLine(), out int id))
+                {
+                    var customer = db.Customers.Include(c => c.Adresses).FirstOrDefault(c => c.Id == id);
+                    if (customer != null)
+                    {
+                        Console.Clear();
+                        Console.WriteLine("What do you want to change on the customer? ");
+
+                        List<string> options = Helpers.EnumsToLists(typeof(Enums.ChangeCustomerInfo));
+                        var window = new Window("Options", 0, 2, options);
+                        Console.Clear();
+                        window.Draw();
+
+
+                        ConsoleKeyInfo key = Console.ReadKey(true);
+                        char inputChar = char.ToUpper(key.KeyChar);
+
+                        if (int.TryParse(inputChar.ToString(), out int input))
+                        {
+                            switch ((Enums.ChangeCustomerInfo)input)
+                            {
+                                case Enums.ChangeCustomerInfo.Name:
+                                    customer = ChangeName(customer, db);
+                                    break;
+                                case Enums.ChangeCustomerInfo.Phone_number:
+                                    customer = ChangePhonenUmber(customer, db);
+                                    break;
+                                case Enums.ChangeCustomerInfo.Email:
+                                    customer = ChangeEmail(customer, db);
+                                    break;
+                                case Enums.ChangeCustomerInfo.Age:
+                                    customer = ChangeAge(customer, db);
+                                    break;
+                                case Enums.ChangeCustomerInfo.address:
+                                    customer = ChangeAddress(customer, db);
+                                    break;
+                            }
                         }
                     }
                 }
