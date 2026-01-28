@@ -18,5 +18,17 @@ namespace Webbshop
             collection.InsertOne(log);
         }
 
+        public static void InsertUserLog(UserLog log)
+        {
+            var collection = MDBConnection.GetConnectionUser();
+            collection.InsertOne(log);
+        }
+
+
+        public static void InsertActivityLog(ActivityLog log)
+        {
+            var collection = MDBConnection.GetConnectionActivity();
+            collection.InsertOne(log);
+        }
     }
 }

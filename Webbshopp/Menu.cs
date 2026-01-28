@@ -100,21 +100,21 @@ namespace Webbshop
                                 case 'A':
                                     if(bookOne != null)
                                     {
-                                        ShowBook(bookOne);
+                                        ShowBook(bookOne, user);
                                     }
                                     validInput = true;
                                     break;
                                 case 'B':
                                     if(bookTwo != null)
                                     {
-                                    ShowBook(bookTwo);
+                                    ShowBook(bookTwo, user);
                                     }
                                     validInput = true;
                                     break;
                                 case 'C':
                                     if(bookThree != null)
                                     {
-                                    ShowBook(bookThree);
+                                    ShowBook(bookThree, user);
                                     }
                                     validInput = true;
                                     break;
@@ -157,7 +157,7 @@ namespace Webbshop
                             Thread.Sleep(1000);
                             return;
                         case Enums.customerEnums.Shop:
-                            ShopMenu();
+                            ShopMenu(currentUser);
                             break;
                         case Enums.customerEnums.Shoppingcart:
                             CartQueries.ShowCart(currentUser);
@@ -229,7 +229,7 @@ namespace Webbshop
 
         }
 
-        public static void CustomerCategories()
+        public static void CustomerCategories(User? currentUser)
         {
             Console.Clear();
            using(var db = new Connections.MyAppContext())
@@ -245,7 +245,7 @@ namespace Webbshop
                 {
                     if(categories.Any(c => c.Id == input))
                     {
-                        NavigationQueries.ShowCategory(input);
+                        NavigationQueries.ShowCategory(input, currentUser);
                     }
                     else
                     {
@@ -260,7 +260,7 @@ namespace Webbshop
             }
         }
 
-        public static void ShopMenu()
+        public static void ShopMenu(User? currentUser)
         {
             while(true)
             {
@@ -278,7 +278,7 @@ namespace Webbshop
                     switch ((Enums.shopEnums)input)
                     {
                         case Enums.shopEnums.Categories:
-                            CustomerCategories();
+                            CustomerCategories(currentUser);
                             break;
                         case Enums.shopEnums.Back:
                             return;
@@ -298,11 +298,11 @@ namespace Webbshop
             }
         }
 
-        public static void ShowBook(Product book)
+        public static void ShowBook(Product book, User? currentUser)
         {
             if(book != null)
             {
-                NavigationQueries.InfoBook(book.Id);
+                NavigationQueries.InfoBook(book.Id, currentUser);
             }
             else
             {

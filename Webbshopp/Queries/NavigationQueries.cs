@@ -25,7 +25,7 @@ namespace Webbshop.Queries
     internal class NavigationQueries
     {
 
-        public static void ShowCategory(int id)
+        public static void ShowCategory(int id, User? currentUser)
         {
             Console.Clear();
             try
@@ -53,7 +53,7 @@ namespace Webbshop.Queries
                         {
                             if (getBooks.Any(p => p.Id == input))
                             {
-                                InfoBook(input);
+                                InfoBook(input, currentUser);
                             }
                             else
                             {
@@ -80,7 +80,7 @@ namespace Webbshop.Queries
             }
         }
 
-        public static void InfoBook(int id)
+        public static void InfoBook(int id, User? currentUser)
         {
             Console.Clear();
             try
@@ -99,7 +99,7 @@ namespace Webbshop.Queries
                         char inputChar = char.ToUpper(key.KeyChar);
                         if (inputChar == 'C')
                         {
-                           CartQueries.AddToCart(db,book);
+                           CartQueries.AddToCart(db,book, currentUser);
                         }
                     }
                     else
@@ -139,7 +139,7 @@ namespace Webbshop.Queries
                 Console.WriteLine("Enter id of the book you are interested in");
                 if(int.TryParse(Console.ReadLine(), out int id))
                 {
-                    InfoBook(id);
+                    InfoBook(id, null);
                 }
             }
 

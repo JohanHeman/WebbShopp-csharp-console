@@ -15,7 +15,7 @@ namespace Webbshop.Queries
     {
 
 
-        public static void AddToCart(MyAppContext db, Product product)
+        public static void AddToCart(MyAppContext db, Product product, User? currentUser)
         {
             if (product.InStock <= 0)
             {
@@ -25,6 +25,21 @@ namespace Webbshop.Queries
 
             try
             {
+                if (currentUser != null)
+                {
+                    var customer = db.Customers.FirstOrDefault(c => c.UserId == currentUser.Id);
+                    if (customer != null)
+                    {
+                        MongoQueries.InsertActivityLog(new ModelsMDB.ActivityLog
+                        {
+                            CustomerId = customer.Id,
+                            Date = DateTime.Now,
+                            ProductId = product.Id,
+                            Activity = $"Added {product.Name} to cart"
+                        });
+                    }
+                }
+
                 var checkCart = db.Carts.Include(c => c.CartProducts).FirstOrDefault(c => !c.IsCheckedOut);
 
                 if (checkCart != null)
@@ -43,6 +58,7 @@ namespace Webbshop.Queries
                             Quantity = 1
                         });
                     }
+
 
                     checkCart.TotalAmount += product.Price;
                     product.InStock--;
@@ -64,12 +80,12 @@ namespace Webbshop.Queries
                         ProductId = product.Id,
                         Quantity = 1
                     });
-                    {
-                        db.SaveChanges();
-                        Console.Clear();
-                        Console.WriteLine("Succesfully added item to cart");
-                        Console.ReadLine();
-                    }
+                    
+                    db.SaveChanges();
+                    Console.Clear();
+                    Console.WriteLine("Succesfully added item to cart");
+                    Console.ReadLine();
+                    
                 }
             }
             catch (DbException e)

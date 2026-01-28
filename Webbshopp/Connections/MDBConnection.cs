@@ -1,4 +1,5 @@
-﻿using Microsoft.Extensions.Configuration;
+﻿using Microsoft.EntityFrameworkCore.Metadata.Internal;
+using Microsoft.Extensions.Configuration;
 using MongoDB.Driver;
 using System;
 using System.Collections.Generic;
@@ -12,7 +13,7 @@ namespace Webbshop.Connections
 {
     internal class MDBConnection
     {
-
+        // this first function is to get the connection to the client
         private static MongoClient GetClient()
         {
             var config = new ConfigurationBuilder().AddUserSecrets<Program>().Build();
@@ -24,12 +25,33 @@ namespace Webbshop.Connections
             return client;
         }
 
+        // these functions bellow is different connections to different collections
 
-        internal static IMongoCollection<PaymentLog> GetConnectionPayment()
+        public static IMongoCollection<PaymentLog> GetConnectionPayment()
         {
             var client = GetClient();
             var database = client.GetDatabase("WebbshoppLogs");
             return database.GetCollection<PaymentLog>("PaymentLogs");
+        }
+
+        public static IMongoCollection<UserLog> GetConnectionUser()
+        {
+            var client = GetClient();
+            var database = client.GetDatabase("WebbshoppLogs");
+            return database.GetCollection<UserLog>("UserLogs");
+        }
+
+        // create model for Adding to cart 
+        // create connection here 
+        // create function to add log
+        // then when user add item to cart call the log function 
+        
+
+        public static IMongoCollection<ActivityLog> GetConnectionActivity()
+        {
+            var client = GetClient();
+            var database = client.GetDatabase("WebbshoppLogs");
+            return database.GetCollection<ActivityLog>("CustomerActivity");
         }
     }
 }

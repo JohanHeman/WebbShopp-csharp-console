@@ -106,6 +106,13 @@ namespace Webbshop
 
                             if(user != null)
                             {
+                                MongoQueries.InsertUserLog(new ModelsMDB.UserLog
+                                {
+                                    Username = user.UserName,
+                                    UserId = user.Id,
+                                    CreatedAt = DateTime.Now,
+                                    Activity = user.IsAdmin ? "Admin logged in" : "User logged in"
+                                });
                                 Console.WriteLine("Welcome back " + user.UserName);
                                 Console.ReadKey(true);
                                 return user;
@@ -153,6 +160,13 @@ namespace Webbshop
                                     db.SaveChanges();
                                     Console.WriteLine("user " + username + " has bneen registered.");
                                     Console.ReadKey(true);
+                                    MongoQueries.InsertUserLog(new ModelsMDB.UserLog
+                                    {
+                                        Username = user.UserName,
+                                        UserId = user.Id,
+                                        CreatedAt = DateTime.Now,
+                                        Activity = "Created account"
+                                    });
                                     return user;
                                 }
                             }
@@ -306,6 +320,14 @@ namespace Webbshop
 
             if (!db.Customers.Any(c => c.Id == customer.Id))
                 db.Customers.Add(customer);
+
+
+            MongoQueries.InsertActivityLog(new ModelsMDB.ActivityLog
+            {
+                CustomerId = customer.Id,
+                Date = DateTime.Now,
+                Activity = "New Customer"
+            });
 
             db.SaveChanges();
 
