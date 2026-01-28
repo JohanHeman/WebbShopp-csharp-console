@@ -13,12 +13,8 @@ namespace Webbshop
 {
     internal class Menu
     {
-
-
         public static async Task StartMenu(User user)
         {
-            
-
             using(var db = new MyAppContext())
             {
                 while (true)
@@ -82,8 +78,18 @@ namespace Webbshop
                                     validInput = true;
                                     break;
                                 case Enums.HomeEnums.Admin_menu:
+                                    if(user != null && user.IsAdmin)
+                                    {
                                     await AdminMenu();
                                     continue;
+                                    }
+                                    else
+                                    {
+                                        Console.WriteLine("User is not admin. please use the customer functions instead!");
+                                        Console.ReadKey(true);
+                                        validInput = true;
+                                    }
+                                        break;
                             }
                         }
 
