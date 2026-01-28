@@ -52,7 +52,6 @@ namespace Webbshop.Queries
 
                 db.Checkouts.Add(checkout);
                 db.SaveChanges(); 
-                Console.ReadLine();
 
                 Console.Clear();
 

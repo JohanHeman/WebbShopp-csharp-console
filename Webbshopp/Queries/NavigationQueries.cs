@@ -25,8 +25,6 @@ namespace Webbshop.Queries
     internal class NavigationQueries
     {
 
-        static int? checkoutIds;
-
         public static void ShowCategory(int id)
         {
             Console.Clear();

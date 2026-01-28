@@ -69,7 +69,7 @@ namespace Webbshop
         }
 
 
-        public static User SignIn()
+        public static User? SignIn()
         {
             using (var db = new MyAppContext())
             {
@@ -88,19 +88,20 @@ namespace Webbshop
                         while (true)
                         {
                             Console.Write("Username: ");
-                            string userName = Console.ReadLine();
-                            if(userName == "q")
+                            string? userName = Console.ReadLine();
+                            if(userName != null && userName.Equals("q", StringComparison.OrdinalIgnoreCase))
                             {
                                 return null;
                             }
 
                             Console.Write("Password: ");
-                            string password = Console.ReadLine();
+                            string? password = Console.ReadLine();
 
-                            if(password.Equals("q", StringComparison.OrdinalIgnoreCase))     
+                            if(password != null && password.Equals("q", StringComparison.OrdinalIgnoreCase))     
                             {
                                 return null;
                             }
+                            
                             var user = db.Users.FirstOrDefault(u => u.UserName == userName && u.Password == password);
 
                             if(user != null)
@@ -123,11 +124,11 @@ namespace Webbshop
                         {
                             Console.WriteLine("Press 'q' to quit");
                             Console.Write("Enter your Username: ");
-                            string username = Console.ReadLine();
+                            string? username = Console.ReadLine();
                             if (username == "q") break;
 
                             Console.Write("Enter your password: ");
-                            string password = Console.ReadLine();
+                            string? password = Console.ReadLine();
                             if (password == "q") break;
                             var existingUser = db.Users.FirstOrDefault(u => u.UserName == username);
 
@@ -139,17 +140,21 @@ namespace Webbshop
                             }
                             else
                             {
-                                User user = new User
+                                if (username != null && password != null)
                                 {
+                                    User user = new User
+                                    {
+                                    
                                     UserName = username,
                                     Password = password,
                                     IsAdmin = false
-                                };
-                                db.Users.Add(user);
-                                db.SaveChanges();
-                                Console.WriteLine("user " + username + " has bneen registered.");
-                                Console.ReadKey(true);
-                                return user;
+                                    };
+                                    db.Users.Add(user);
+                                    db.SaveChanges();
+                                    Console.WriteLine("user " + username + " has bneen registered.");
+                                    Console.ReadKey(true);
+                                    return user;
+                                }
                             }
                         }
                         break;
@@ -166,7 +171,6 @@ namespace Webbshop
 
             Customer customer;
             Address address;
-
 
             if (currentUser != null)
             {
@@ -193,16 +197,26 @@ namespace Webbshop
                 customer = new Customer();
             }
 
-            Console.Write("Enter your name: ");
-            customer.Name = Console.ReadLine();
+           
+            while (true)
+            {
+                Console.Write("Enter your name: ");
+                string? name = Console.ReadLine();
+                if (!string.IsNullOrWhiteSpace(name))
+                {
+                    customer.Name = name;
+                    break;
+                }
+
+                Console.WriteLine("Name cant be empty");
+            }
 
             
-
             while (true)
             {
                 Console.Write("Enter your phoneNumber: ");
-                string num = Console.ReadLine();
-                if (!num.All(char.IsDigit))
+                string? num = Console.ReadLine();
+                if (string.IsNullOrWhiteSpace(num) || !num.All(char.IsDigit))
                 {
                     Console.WriteLine("Must be a valid number");
                     continue;
@@ -211,11 +225,12 @@ namespace Webbshop
                 break;
             }
 
+            
             while (true)
             {
                 Console.Write("Enter your email: ");
-                string email = Console.ReadLine();
-                if (!email.Contains('@'))
+                string? email = Console.ReadLine();
+                if (string.IsNullOrWhiteSpace(email) || !email.Contains('@'))
                 {
                     Console.WriteLine("Not a valid email");
                     continue;
@@ -224,10 +239,12 @@ namespace Webbshop
                 break;
             }
 
+           
             while (true)
             {
                 Console.Write("Enter your age: ");
-                if (!int.TryParse(Console.ReadLine(), out int age) || age <= 14)
+                string? ageInput = Console.ReadLine();
+                if (!int.TryParse(ageInput, out int age) || age <= 14)
                 {
                     Console.WriteLine("Not a valid age");
                     continue;
@@ -236,14 +253,33 @@ namespace Webbshop
                 break;
             }
 
-            Console.Write("Enter country: ");
-            string country = Console.ReadLine();
+            
+            string? country;
+            while (true)
+            {
+                Console.Write("Enter country: ");
+                country = Console.ReadLine();
+                if (!string.IsNullOrWhiteSpace(country)) break;
+                Console.WriteLine("Country cant be empty");
+            }
 
-            Console.Write("Enter city: ");
-            string city = Console.ReadLine();
+            string? city;
+            while (true)
+            {
+                Console.Write("Enter city: ");
+                city = Console.ReadLine();
+                if (!string.IsNullOrWhiteSpace(city)) break;
+                Console.WriteLine("City cant be empty");
+            }
 
-            Console.Write("Enter street: ");
-            string street = Console.ReadLine();
+            string? street;
+            while (true)
+            {
+                Console.Write("Enter street: ");
+                street = Console.ReadLine();
+                if (!string.IsNullOrWhiteSpace(street)) break;
+                Console.WriteLine("Street cant be empty");
+            }
 
 
             address = new Address { Street = street };
@@ -275,7 +311,5 @@ namespace Webbshop
 
             return customer;
         }
-
-
     }
 }

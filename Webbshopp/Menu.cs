@@ -27,9 +27,9 @@ namespace Webbshop
                     var windowStart = new Window("The Book Shop", 37, 0, welcomeText);
                     windowStart.Draw();
 
-                    Product bookOne = null;
-                    Product bookTwo = null;
-                    Product bookThree = null;
+                    Product? bookOne = null;
+                    Product? bookTwo = null;
+                    Product? bookThree = null;
 
                     if (products.Count > 0)
                         bookOne = products[0];
@@ -98,15 +98,24 @@ namespace Webbshop
                             switch(inputChar)
                             {
                                 case 'A':
-                                    ShowBook(bookOne);
+                                    if(bookOne != null)
+                                    {
+                                        ShowBook(bookOne);
+                                    }
                                     validInput = true;
                                     break;
                                 case 'B':
+                                    if(bookTwo != null)
+                                    {
                                     ShowBook(bookTwo);
+                                    }
                                     validInput = true;
                                     break;
                                 case 'C':
+                                    if(bookThree != null)
+                                    {
                                     ShowBook(bookThree);
+                                    }
                                     validInput = true;
                                     break;
                             }
