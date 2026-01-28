@@ -15,9 +15,11 @@ using static Microsoft.EntityFrameworkCore.DbLoggerCategory.Database;
 
 namespace Webbshop.Queries
 {
+
+    // some dapper helper functions
     internal class DapperQueries
     {
-        public static List<Category> GetCategories()
+        public static List<Category> GetCategories() 
         {
 
             var config = new ConfigurationBuilder().AddUserSecrets<Program>().Build();
@@ -39,7 +41,7 @@ namespace Webbshop.Queries
         }
 
 
-        public static List<Product> GetBooks()
+        public static List<Product> GetBooks() 
         {
             var config = new ConfigurationBuilder().AddUserSecrets<Program>().Build();
             var connString = config["MySettings:ConnectionString"];

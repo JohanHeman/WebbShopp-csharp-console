@@ -16,11 +16,11 @@ namespace Webbshop.Queries
     {
 
 
-        public static void CartToCheckOut(MyAppContext db, User? currentUser)
+        public static void CartToCheckOut(MyAppContext db, User? currentUser) // this function handles the logic for moving the cart to a checkout
         {
             try
             {
-                var cart = db.Carts.Include(c => c.CartProducts).ThenInclude(cp => cp.Product).FirstOrDefault(c => !c.IsCheckedOut);
+                var cart = db.Carts.Include(c => c.CartProducts).ThenInclude(cp => cp.Product).FirstOrDefault(c => !c.IsCheckedOut); // gets the cart that we want to work with
 
                 if (cart == null || !cart.CartProducts.Any())
                 {
@@ -28,10 +28,10 @@ namespace Webbshop.Queries
                     return;
                 }
 
-                Customer customer = Helpers.PromptCustomer(db, currentUser);
+                Customer customer = Helpers.PromptCustomer(db, currentUser); // calls function to prompt for creating a customer
                 Address address = customer.Adresses.First();
 
-                    Checkout checkout = new Checkout()
+                    Checkout checkout = new Checkout() // creates a new checkout
                     {
                         TotalAmount = cart.TotalAmount,
                         IsPaid = false,
@@ -40,7 +40,7 @@ namespace Webbshop.Queries
 
                     };
 
-                foreach (var cartProduct in cart.CartProducts)
+                foreach (var cartProduct in cart.CartProducts) // moves all the products to the checkoutProduct table
                 {
                     checkout.CheckoutProducts.Add(new CheckoutProduct
                     {
@@ -55,8 +55,7 @@ namespace Webbshop.Queries
 
                 Console.Clear();
 
-                checkout = db.Checkouts.Include(c => c.CheckoutProducts).ThenInclude(cp => cp.Product).First(c => c.Id == checkout.Id);
-
+                checkout = db.Checkouts.Include(c => c.CheckoutProducts).ThenInclude(cp => cp.Product).First(c => c.Id == checkout.Id); // gets the checkout and displays information to user / handles new input
 
                 Console.WriteLine("Your checkout contains: ");
                 checkout.TotalAmount = checkout.TotalAmount * 1.25m;
@@ -93,7 +92,7 @@ namespace Webbshop.Queries
         }
 
 
-        public static void DeliveryAndPayment(MyAppContext db, Checkout checkout, Cart cart, Customer customer)
+        public static void DeliveryAndPayment(MyAppContext db, Checkout checkout, Cart cart, Customer customer) 
         {
             bool isPaid = false;
             bool hasFee = false;
@@ -181,7 +180,7 @@ namespace Webbshop.Queries
             }
         }
 
-        public static bool Payment(MyAppContext db, Checkout checkout, Cart cart, Customer customer)
+        public static bool Payment(MyAppContext db, Checkout checkout, Cart cart, Customer customer) // payment function, either customer can pay with klarna or creditcard, klarna payment has less information inside the database table for payments, creditcard payments has more information 
         {
             try
             {
@@ -235,6 +234,7 @@ namespace Webbshop.Queries
 
 
                 db.SaveChanges();
+                // creates a new payment log for MongoDB
 
                 if(createdPayment != null)
                 {
@@ -264,7 +264,7 @@ namespace Webbshop.Queries
         }
 
 
-        public static Payment CreditCardPayment(Checkout checkout, Customer customer, PaymentMethod paymentMethod)
+        public static Payment CreditCardPayment(Checkout checkout, Customer customer, PaymentMethod paymentMethod) // handles the credit card payment
         {
             try
             {
@@ -323,7 +323,7 @@ namespace Webbshop.Queries
             return null;
         }
 
-        public static Payment KlarnaPayment(Checkout checkout, Customer customer, PaymentMethod paymentMethod)
+        public static Payment KlarnaPayment(Checkout checkout, Customer customer, PaymentMethod paymentMethod) // klarna payment
         {
             Payment payment = new Payment();
             payment.Amount = checkout.TotalAmount;

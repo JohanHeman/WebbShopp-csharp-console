@@ -25,14 +25,13 @@ namespace Webbshop.Queries
     internal class NavigationQueries
     {
 
-        public static void ShowCategory(int id, User? currentUser)
+        public static void ShowCategory(int id, User? currentUser) // Shows the books inside one category
         {
             Console.Clear();
             try
             {
                 using (var db = new MyAppContext())
                 {
-                    // using include to only load data from one category, instead of the entire category table
                     var getBooks = db.Products.Include(p => p.Category).Where(p => p.CategoryId == id).ToList();
 
                     if (getBooks.Count > 0)
@@ -80,7 +79,7 @@ namespace Webbshop.Queries
             }
         }
 
-        public static void InfoBook(int id, User? currentUser)
+        public static void InfoBook(int id, User? currentUser) // This function shows the information to a user when they choose a book and gives options to the customer
         {
             Console.Clear();
             try
@@ -120,7 +119,7 @@ namespace Webbshop.Queries
             }
         }
 
-        public static void SearchBooks()
+        public static void SearchBooks() 
         {
             Console.Clear();
             List<Product> books = DapperQueries.GetBooks();
@@ -149,23 +148,9 @@ namespace Webbshop.Queries
             }
                 Console.ReadKey(true);
         }
-
-
-
-
-
     }
 }
 
 
-
-
-
-
-
-// tomorrow focus on testing all the customer functions first, wrong input and see if all data is storred properly in sql 
-// See if there is more customer functions to add 
-// start on admin functions 
-// make some admin functions async
 
 

@@ -40,11 +40,6 @@ namespace Webbshop.Connections
             var database = client.GetDatabase("WebbshoppLogs");
             return database.GetCollection<UserLog>("UserLogs");
         }
-
-        // create model for Adding to cart 
-        // create connection here 
-        // create function to add log
-        // then when user add item to cart call the log function 
         
 
         public static IMongoCollection<ActivityLog> GetConnectionActivity()
@@ -53,5 +48,14 @@ namespace Webbshop.Connections
             var database = client.GetDatabase("WebbshoppLogs");
             return database.GetCollection<ActivityLog>("CustomerActivity");
         }
+
+        public static IMongoCollection<AddProduct> GetCOnnectionAddProduct()
+        {
+            var client = GetClient();
+            var database = client.GetDatabase("WebbshoppLogs");
+            return database.GetCollection<AddProduct>("NewProducts");
+        }
+
+
     }
 }

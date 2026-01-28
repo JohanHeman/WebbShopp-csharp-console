@@ -30,5 +30,12 @@ namespace Webbshop
             var collection = MDBConnection.GetConnectionActivity();
             collection.InsertOne(log);
         }
+
+
+        public static void InsertNewProductLog(AddProduct log)
+        {
+            var collection = MDBConnection.GetCOnnectionAddProduct();
+            collection.InsertOne(log);
+        }
     }
 }

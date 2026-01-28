@@ -16,7 +16,7 @@ namespace Webbshop
 {
     internal class Helpers
     {
-        public static List<string> EnumsToLists(Type e) // using type as parameter 
+        public static List<string> EnumsToLists(Type e)
         {
             List<string> theList = new List<string>();
 
@@ -36,7 +36,7 @@ namespace Webbshop
             return theList;   
         }
 
-        public static Window ShowCategories(List<Category> cList)
+        public static Window ShowCategories(List<Category> cList) 
         {
             Console.Clear();
             cList = DapperQueries.GetCategories();
@@ -69,7 +69,7 @@ namespace Webbshop
         }
 
 
-        public static User? SignIn()
+        public static User? SignIn() // this function either lets a user sign in to existing account or register an account.
         {
             using (var db = new MyAppContext())
             {

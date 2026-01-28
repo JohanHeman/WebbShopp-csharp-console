@@ -12,7 +12,7 @@ namespace Webbshop.Queries
 {
     internal class AdminAcessFunction
     {
-
+        // just a function that handles the adminacess for users.
         public static void AdminAcess()
         {
             using (var db = new MyAppContext())

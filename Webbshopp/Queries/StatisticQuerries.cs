@@ -14,7 +14,7 @@ namespace Webbshop.Queries
     internal class StatisticQuerries
     {
 
-        public static void ShowStatistics()
+        public static void ShowStatistics() 
         {
             Console.Clear();
 
@@ -44,7 +44,7 @@ namespace Webbshop.Queries
         }
 
 
-        public static void TopThirtyProducts() // includes product with checkoutproduct and groups by productId, then selects the first product in the group, and the count of that group. Takes the top 5 of them and displays them
+        public static void TopThirtyProducts() // includes product with checkoutproduct and groups by productId, then selects the first product in the group, and the count of that group. Takes the top 30 of them and displays them
         {
             Console.Clear();
             using(var db = new MyAppContext())
@@ -64,7 +64,7 @@ namespace Webbshop.Queries
             }
         }
 
-        public static void LastHourOverview()
+        public static void LastHourOverview() 
         {
             Console.Clear();
             using (var db = new MyAppContext())
@@ -100,11 +100,10 @@ namespace Webbshop.Queries
                     Console.WriteLine("No books have been sold the past hour.");
                     Console.ReadKey(true);
                 }
-                                
             }
         }
 
-        public static void CustomerGroups()
+        public static void CustomerGroups() // shows different customer groups, either grouped in countries or cities
         {
 
             using( var db = new MyAppContext())
@@ -178,14 +177,5 @@ namespace Webbshop.Queries
                 }
             }
         }
-
-        // add function for best selling category here 
-
-
-        // after that add crud operations for customer
-
-        // after that add option to sign up and login, and new table called users for erd and set  it up with efcore 
-        // IMPORTANT COMMIT BEFORE ADDING THE NEW TABLE ETC 
-
     }
 }

@@ -19,7 +19,7 @@ namespace Webbshop.Queries
     internal class AdminCustomer
     {
 
-        public static void AdminCustomerOperations()
+        public static void AdminCustomerOperations() 
         {
             while (true)
             {
@@ -46,7 +46,7 @@ namespace Webbshop.Queries
             }
         }
 
-        public static void ChangeCustomerInfo()
+        public static void ChangeCustomerInfo() // Either search customer or browswe customer
         {
             while (true)
             {
@@ -72,7 +72,7 @@ namespace Webbshop.Queries
             }
         }
 
-        public static void SearchCustomer()
+        public static void SearchCustomer() 
         {
             try
             {
@@ -112,7 +112,7 @@ namespace Webbshop.Queries
             }
         }
 
-        public static Customer ChangeName(Customer customer, MyAppContext db)
+        public static Customer ChangeName(Customer customer, MyAppContext db) 
         {
             while (true)
             {
@@ -140,7 +140,7 @@ namespace Webbshop.Queries
             }
         }
 
-        public static Customer ChangePhonenUmber(Customer customer, MyAppContext db)
+        public static Customer ChangePhonenUmber(Customer customer, MyAppContext db) 
         {
             while (true)
             {
@@ -168,7 +168,7 @@ namespace Webbshop.Queries
             }
         }
 
-        public static Customer ChangeEmail(Customer customer, MyAppContext db)
+        public static Customer ChangeEmail(Customer customer, MyAppContext db) 
         {
             while (true)
             {
@@ -197,7 +197,7 @@ namespace Webbshop.Queries
         }
 
 
-        public static Customer ChangeAge(Customer customer, MyAppContext db)
+        public static Customer ChangeAge(Customer customer, MyAppContext db) 
         {
             while (true)
             {
@@ -256,7 +256,7 @@ namespace Webbshop.Queries
             return customer;
         }
 
-        public static Customer ChangeCountry(Customer customer, MyAppContext db)
+        public static Customer ChangeCountry(Customer customer, MyAppContext db) // change country on a customer or add a new country (Also handles if a customer has multiple addresses)
         {
             var address = customer.Adresses.FirstOrDefault();
             var addresses = customer.Adresses.ToList();
@@ -418,7 +418,7 @@ namespace Webbshop.Queries
             }
         }
 
-        public static Customer ChangeStreet(Customer customer, MyAppContext db)
+        public static Customer ChangeStreet(Customer customer, MyAppContext db) 
         {
             var address = customer.Adresses.FirstOrDefault();
             var addresses = customer.Adresses.ToList();
@@ -473,7 +473,7 @@ namespace Webbshop.Queries
 
         }
 
-        public static void BrowseCustomers()
+        public static void BrowseCustomers() 
         {
             using(var db = new MyAppContext())
             {
@@ -490,7 +490,7 @@ namespace Webbshop.Queries
             }
         }
 
-        public static Customer ChooseCustomer(MyAppContext db)
+        public static Customer ChooseCustomer(MyAppContext db) // choosing the customer after search or browse, then displays a menu for admin functions to change customer information
         {
             while(true)
             {
@@ -561,7 +561,7 @@ namespace Webbshop.Queries
                 }
             }
         }
-        public static void DeleteCustomer(Customer customer,  MyAppContext db)
+        public static void DeleteCustomer(Customer customer,  MyAppContext db) 
         {
             if(customer != null)
             {
@@ -595,13 +595,13 @@ namespace Webbshop.Queries
         }
 
 
-        public static void ShowCustomerHistory(Customer customer, MyAppContext db)
+        public static void ShowCustomerHistory(Customer customer, MyAppContext db) // this function shows order history for the customer
         {
 
             // nice querry to get the information needed to display the items for order history 
-            // first include starts the first chain including items
-            // second include starts over a new chain from payments and includes other necesarry items. 
-            // then gets the customer whos order history we want to see
+            // the first include starts the first chain payments => customers
+            // second include starts over a new chain from payments => city
+            // third include payments => product
 
             var orderHistory = db.Payments
                  .Include(p => p.CheckOut)

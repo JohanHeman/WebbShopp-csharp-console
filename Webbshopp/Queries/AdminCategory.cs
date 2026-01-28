@@ -16,7 +16,8 @@ namespace Webbshop.Queries
     internal class AdminCategory
     {
         // This class contains all the product operations for the admin
-        public static async Task AdminCategories()
+        // i made them async to show that i understand how to impliment async functions in my code
+        public static async Task AdminCategories() 
         {
             Console.Clear();
 
@@ -122,7 +123,7 @@ namespace Webbshop.Queries
         }
 
 
-        public static async Task ShowCategoryAdmin(MyAppContext db, int id)
+        public static async Task ShowCategoryAdmin(MyAppContext db, int id) 
         {
             Console.Clear();
             try
@@ -240,7 +241,7 @@ namespace Webbshop.Queries
             return catToDelete;
         }
 
-        public static async Task DeleteCategory(MyAppContext db, Category category) // this function deletes the categoru that the user wants to delete
+        public static async Task DeleteCategory(MyAppContext db, Category category) // this function deletes the category that the user wants to delete
         {
             var books = await db.Products
                 .Where(b => b.CategoryId == category.Id)
@@ -314,7 +315,7 @@ namespace Webbshop.Queries
             }
         }
 
-        public static async Task ChangeSupplierBook(MyAppContext db, Product book)
+        public static async Task ChangeSupplierBook(MyAppContext db, Product book) 
         {
             Console.Clear();
             var suppliers = await db.Suppliers.ToListAsync();
@@ -346,7 +347,7 @@ namespace Webbshop.Queries
             }
         }
 
-        public static async Task InStockProduct(MyAppContext db, Product book)
+        public static async Task InStockProduct(MyAppContext db, Product book) 
         {
             
 
@@ -365,6 +366,11 @@ namespace Webbshop.Queries
                         Console.WriteLine("Enter the new amount ");
                         if (int.TryParse(Console.ReadLine(), out int num))
                         {
+                            if(num <= 0)
+                            {
+                                Console.WriteLine("Stock quantity cannot be less than 1. Please try again.");
+                                continue;
+                            }
                             book.InStock = num;
                             await db.SaveChangesAsync();
                             Console.WriteLine("Updated succeesfully");
@@ -387,13 +393,13 @@ namespace Webbshop.Queries
             }
             catch (DbUpdateException ex)
             {
-                Console.WriteLine("Somethjing went wrong");
+                Console.WriteLine("Something went wrong");
                 Console.WriteLine(ex.StackTrace);
             }
 
         }
 
-        public static async Task ChangePriceProduct(MyAppContext db, Product book)
+        public static async Task ChangePriceProduct(MyAppContext db, Product book) 
         {
             Console.Clear();
 
@@ -420,11 +426,9 @@ namespace Webbshop.Queries
             }
         }
 
-        public static async Task ChangeCategoryProduct(MyAppContext db, Product book)
+        public static async Task ChangeCategoryProduct(MyAppContext db, Product book) 
         {
             Console.Clear();
-
-           
 
             List<Category> categories = DapperQueries.GetCategories();
 
@@ -459,7 +463,7 @@ namespace Webbshop.Queries
             }
         }
 
-        public static void DeleteProduct(MyAppContext db, int id)
+        public static void DeleteProduct(MyAppContext db, int id) 
         {
             var book = db.Products.FirstOrDefault(p => p.Id == id);
 
@@ -477,7 +481,7 @@ namespace Webbshop.Queries
             }
         }
 
-        public static async Task ChangeInfo(MyAppContext db, Product book)
+        public static async Task ChangeInfo(MyAppContext db, Product book) 
         {
             Console.Clear();
 
@@ -511,7 +515,7 @@ namespace Webbshop.Queries
             }
         }
 
-        public static async Task ChangeName(MyAppContext db, Product book)
+        public static async Task ChangeName(MyAppContext db, Product book) 
         {
             Console.Clear();
             while (true)
@@ -549,7 +553,7 @@ namespace Webbshop.Queries
 
         }
 
-        public static async Task ChangeProduct(MyAppContext db, int id)
+        public static async Task ChangeProduct(MyAppContext db, int id) 
         {
             Console.Clear();
 
@@ -610,7 +614,7 @@ namespace Webbshop.Queries
             }
 
         }
-        public static async Task AdminProduct(MyAppContext db, int id)
+        public static async Task AdminProduct(MyAppContext db, int id) 
         {
             Console.Clear();
             try
@@ -619,7 +623,7 @@ namespace Webbshop.Queries
 
                 if (book != null)
                 {
-                    List<string> bookWindow = new List<string> { book.Information, book.Price.ToString() + "$" + " In stock: " + book.InStock + " 'c' ro change product information. Any oyher key to go back" };
+                    List<string> bookWindow = new List<string> { book.Information, book.Price.ToString() + "$" + " In stock: " + book.InStock + " 'c' to change product information. Any oyher key to go back" };
                     var window = new Window(book.Name, 1, 1, bookWindow);
                     window.Draw();
                     ConsoleKeyInfo key = Console.ReadKey(true);
@@ -650,7 +654,9 @@ namespace Webbshop.Queries
             Console.ReadKey(true);
         }
 
-        public static async Task AddProduct() // long function but all it does is ask input to create a new product
+
+        
+        public static async Task AddProduct() // long function, but all it does is add a new product, and log it to mongodb 
         {
             using (MyAppContext db = new MyAppContext())
             {
@@ -891,7 +897,13 @@ namespace Webbshop.Queries
                     book.IsDisplayed = false;
 
                     db.Products.Add(book);
+
                     await db.SaveChangesAsync();
+                    MongoQueries.InsertNewProductLog(new ModelsMDB.AddProduct
+                    {
+                        ProductId = book.Id,
+                        Date = DateTime.Now
+                    });
                     Console.WriteLine("Book added succesfully");
                     Console.ReadKey(true);
                 }
@@ -904,7 +916,7 @@ namespace Webbshop.Queries
         }
 
 
-        public static async Task FrontPageProduct(MyAppContext db, Product book)
+        public static async Task FrontPageProduct(MyAppContext db, Product book) 
         {
             try
             {

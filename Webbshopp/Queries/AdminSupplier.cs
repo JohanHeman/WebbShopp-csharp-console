@@ -11,7 +11,7 @@ namespace Webbshop.Queries
 {
     internal class AdminSupplier
     {
-        public static async Task ShowSuppliers()
+        public static async Task ShowSuppliers() 
         {
             Console.Clear();
             using (var db = new MyAppContext())
@@ -59,7 +59,7 @@ namespace Webbshop.Queries
             }
         }
 
-        public static async Task ChangeSupplier(MyAppContext db, Supplier supplier)
+        public static async Task ChangeSupplier(MyAppContext db, Supplier supplier) // change supplier info either change name or delete
         {
             Console.WriteLine("What do you want to do? ");
             Console.WriteLine("'n' for updating name\n'd' for deleting supplier");
@@ -77,7 +77,7 @@ namespace Webbshop.Queries
             }
         }
 
-        public static async Task AddSupplier(MyAppContext db)
+        public static async Task AddSupplier(MyAppContext db) 
         {
 
             try
@@ -115,7 +115,7 @@ namespace Webbshop.Queries
             }
         }
 
-        public static async Task ChangeNameSupplier(MyAppContext db, Supplier supplier)
+        public static async Task ChangeNameSupplier(MyAppContext db, Supplier supplier) 
         {
             Console.Clear();
             try
@@ -139,7 +139,7 @@ namespace Webbshop.Queries
             }
         }
 
-        public static async Task DeleteSupplier(MyAppContext db, Supplier supplier)
+        public static async Task DeleteSupplier(MyAppContext db, Supplier supplier) 
         {
             Console.Clear();
             try

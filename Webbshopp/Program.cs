@@ -25,7 +25,6 @@ namespace Webbshop
                         continue;
                     }
 
-
                     await Menu.StartMenu(user);
                     break;
 

@@ -15,7 +15,7 @@ namespace Webbshop.Queries
     {
 
 
-        public static void AddToCart(MyAppContext db, Product product, User? currentUser)
+        public static void AddToCart(MyAppContext db, Product product, User? currentUser) // adds item to cart and either creates a new cart or uses existing, user as parameter for log function at the end (MongoDB)
         {
             if (product.InStock <= 0)
             {
@@ -101,7 +101,7 @@ namespace Webbshop.Queries
 
         }
 
-        public static void ShowCart(User? currentUser)
+        public static void ShowCart(User? currentUser) 
         {
             Console.Clear();
             try
@@ -180,7 +180,7 @@ namespace Webbshop.Queries
             }
         }
 
-        public static void EmptyCart(MyAppContext db, int id)
+        public static void EmptyCart(MyAppContext db, int id) 
         {
             Console.Clear();
             try
@@ -204,7 +204,7 @@ namespace Webbshop.Queries
             }
         }
 
-        public static void UpdateCart(MyAppContext db, int id)
+        public static void UpdateCart(MyAppContext db, int id) // either update the quantity of the item or delete it 
         {
             Console.Clear();
 
@@ -212,48 +212,68 @@ namespace Webbshop.Queries
             {
                 var cart = db.Carts.Include(c => c.CartProducts).ThenInclude(cp => cp.Product).FirstOrDefault(c => !c.IsCheckedOut);
 
-                foreach (var item in cart.CartProducts)
+                while (true)
                 {
-                    Console.WriteLine(item.Id + ": " + item.Product.Name);
-                }
-
-                Console.WriteLine("enter the id of the product you want to update");
-                if (int.TryParse(Console.ReadLine(), out int answer))
-                {
-                    // change the product matching the id 
-                    // update properties like the quantity in the cart, the products in stock value, and the price in the cart
-
-
-                    var currentProduct = db.CartProducts.Include(cp => cp.Product).FirstOrDefault(cp => cp.Id == answer);
-
-
-
-                    if (currentProduct != null)
+                    foreach (var item in cart.CartProducts)
                     {
-                        Console.WriteLine("What do you want to do? ");
-                        Console.WriteLine("1: Update quantity\n2: delete item\n3: go back");
-                        ConsoleKeyInfo key = Console.ReadKey(true);
+                        Console.WriteLine(item.Id + ": " + item.Product.Name);
+                    }
+                    Console.WriteLine("Enter the ID of the product you want to update (or 'q' to quit):");
+                    string? inputId = Console.ReadLine();
 
-                        if (int.TryParse(key.KeyChar.ToString(), out int input))
+                    if (inputId != null && inputId.Equals("q", StringComparison.OrdinalIgnoreCase))
+                    {
+                        Console.Clear();
+                        return;
+                    }
+
+                    if (int.TryParse(inputId, out int answer))
+                    {
+                        var currentProduct = db.CartProducts.Include(cp => cp.Product).FirstOrDefault(cp => cp.Id == answer);
+
+                        if (currentProduct != null)
                         {
-                            switch (input)
+                            Console.WriteLine("What do you want to do? ");
+                            Console.WriteLine("1: Update quantity\n2: delete item\n3: go back");
+                            ConsoleKeyInfo key = Console.ReadKey(true);
+
+                            if (int.TryParse(key.KeyChar.ToString(), out int input))
                             {
-                                case 1:
-                                    UpdateCartItem(db, currentProduct);
-                                    break;
-                                case 2:
-                                    DeleteCartItem(db, currentProduct);
-                                    break;
-                                case 3:
-                                    return;
+                                switch (input)
+                                {
+                                    case 1:
+                                        UpdateCartItem(db, currentProduct);
+                                        break;
+                                    case 2:
+                                        DeleteCartItem(db, currentProduct);
+                                        break;
+                                    case 3:
+                                        return;
+                                }
                             }
+                            else
+                            {
+                                Console.WriteLine("Wrong input. Press any key to try again.");
+                                Console.ReadKey(true);
+                                Console.Clear();
+                               
+                            }
+                            break; 
                         }
                         else
                         {
-                            Console.WriteLine("Wrong input");
+                            Console.WriteLine("Product with that ID does not exist in your cart. Press any key to try again.");
+                            Console.ReadKey(true);
+                            Console.Clear();
                         }
                     }
-                }
+                    else
+                    {
+                        Console.WriteLine("Invalid input. Please enter a number or 'q'. Press any key to try again.");
+                        Console.ReadKey(true);
+                        Console.Clear();
+                    }
+                } 
             }
             catch (DbException e)
             {
@@ -267,61 +287,80 @@ namespace Webbshop.Queries
             }
         }
 
-        public static void UpdateCartItem(MyAppContext db, CartProduct currentProduct)
+        public static void UpdateCartItem(MyAppContext db, CartProduct currentProduct) // Update the quantity of the item 
         {
             Console.Clear();
             Console.WriteLine("Current quantity: " + currentProduct.Quantity);
 
-
-            try
+            while (true) 
             {
-
-
-
-                Console.Write("Enter the amount you would like to change it to: ");
-                if (int.TryParse(Console.ReadLine(), out int quant))
+                try
                 {
+                    Console.Write("Enter the amount you would like to change it to (or 'q' to quit): ");
+                    string? input = Console.ReadLine();
 
-                    currentProduct.Product.InStock += currentProduct.Quantity; // restores the instock for product
-
-
-                    int availableStock = currentProduct.Product.InStock;
-                    if (quant > availableStock)
+                    if (input != null && input.Equals("q", StringComparison.OrdinalIgnoreCase))
                     {
-                        Console.WriteLine($"Cannot set quantity to {quant}. Only {availableStock} available.");
+                        Console.Clear();
                         return;
                     }
 
-                    currentProduct.Cart.TotalAmount -= currentProduct.Product.Price * currentProduct.Quantity;
-                    currentProduct.Quantity = quant; // changes the quantity of the chosen product
-                    currentProduct.Product.InStock -= quant; // updates the new instock value 
-                    currentProduct.Cart.TotalAmount += currentProduct.Product.Price * quant;
+                    if (int.TryParse(input, out int quant))
+                    {
+                        if (quant <= 0)
+                        {
+                            Console.WriteLine("Cannot set quantity to less than 1. Press any key to try again.");
+                            Console.ReadKey(true);
+                            Console.Clear(); 
+                            continue;
+                        }
 
-                    db.SaveChanges();
+                        currentProduct.Product.InStock += currentProduct.Quantity; // restores the instock for product
 
-                    Console.WriteLine("Cart succesfully update!");
-                    Console.ReadKey(true);
-                    Console.Clear();
+
+                        int availableStock = currentProduct.Product.InStock;
+                        if (quant > availableStock)
+                        {
+                            Console.WriteLine($"Cannot set quantity to {quant}. Only {availableStock} available. Press any key to try again.");
+                            Console.ReadKey(true);
+                            Console.Clear();
+                            continue;
+                        }
+
+                        currentProduct.Cart.TotalAmount -= currentProduct.Product.Price * currentProduct.Quantity;
+                        currentProduct.Quantity = quant; // changes the quantity of the chosen product
+                        currentProduct.Product.InStock -= quant; // updates the new instock value
+                        currentProduct.Cart.TotalAmount += currentProduct.Product.Price * quant;
+
+                        db.SaveChanges();
+
+                        Console.WriteLine("Cart succesfully updated!");
+                        Console.ReadKey(true);
+                        Console.Clear();
+                        break; 
+                    }
+                    else
+                    {
+                        Console.WriteLine("Not a valid value. Press any key to try again.");
+                        Console.ReadKey(true);
+                        Console.Clear(); 
+                    }
                 }
-                else
+                catch (DbUpdateException e)
                 {
-                    Console.WriteLine("Not valid value");
+                    Console.WriteLine(e.Message);
+                    Console.WriteLine(e.StackTrace);
                 }
-            }
-            catch (DbUpdateException e)
-            {
-                Console.WriteLine(e.Message);
-                Console.WriteLine(e.StackTrace);
-            }
-            catch (DbException e)
-            {
-                Console.WriteLine(e.Message);
-                Console.WriteLine(e.StackTrace);
+                catch (DbException e)
+                {
+                    Console.WriteLine(e.Message);
+                    Console.WriteLine(e.StackTrace);
+                }
             }
         }
 
 
-        public static void DeleteCartItem(MyAppContext db, CartProduct currentProduct)
+        public static void DeleteCartItem(MyAppContext db, CartProduct currentProduct) 
         {
             Console.Clear();
             try
