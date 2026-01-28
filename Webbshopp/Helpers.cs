@@ -73,83 +73,86 @@ namespace Webbshop
         {
             using (var db = new MyAppContext())
             {
-                Console.Clear();
-                Console.WriteLine("Press 'L' to login and 'R' to register");
-
-                ConsoleKeyInfo MenuKey = Console.ReadKey(true);
-
-                char menuInput = char.ToUpper(MenuKey.KeyChar);
-
-                if (menuInput == 'L')
+                while(true)
                 {
-                    Console.WriteLine("Press q to quit at any time ");
-                    while (true)
+                    Console.Clear();
+                    Console.WriteLine("Press 'L' to login and 'R' to register");
+
+                    ConsoleKeyInfo MenuKey = Console.ReadKey(true);
+
+                    char menuInput = char.ToUpper(MenuKey.KeyChar);
+
+                    if (menuInput == 'L')
                     {
-                        Console.Write("Username: ");
-                        string userName = Console.ReadLine();
-                        if(userName == "q")
+                        Console.WriteLine("Press q to quit at any time ");
+                        while (true)
                         {
-                            break;
-                        }
+                            Console.Write("Username: ");
+                            string userName = Console.ReadLine();
+                            if(userName == "q")
+                            {
+                                return null;
+                            }
 
-                        Console.Write("Password: ");
-                        string password = Console.ReadLine();
+                            Console.Write("Password: ");
+                            string password = Console.ReadLine();
 
-                        if(password == "q")
-                        {
-                            break;
-                        }
-                        var user = db.Users.FirstOrDefault(u => u.UserName == userName && u.Password == password);
+                            if(password.Equals("q", StringComparison.OrdinalIgnoreCase))     
+                            {
+                                return null;
+                            }
+                            var user = db.Users.FirstOrDefault(u => u.UserName == userName && u.Password == password);
 
-                        if(user != null)
-                        {
-                            Console.WriteLine("Welcome back " + user.UserName);
-                            Console.ReadKey(true);
-                            return user;
-                        }
-                        else
-                        {
-                            Console.WriteLine("No user found. ");
-                            continue;
+                            if(user != null)
+                            {
+                                Console.WriteLine("Welcome back " + user.UserName);
+                                Console.ReadKey(true);
+                                return user;
+                            }
+                            else
+                            {
+                                Console.WriteLine("No user found. ");
+                                continue;
+                            }
                         }
                     }
-                }
 
-                else if(menuInput == 'R')
-                {
-                    while(true)
+                    else if(menuInput == 'R')
                     {
-                        Console.WriteLine("Press 'q' to quit");
-                        Console.Write("Enter your Username: ");
-                        string username = Console.ReadLine();
-                        if (username == "q") break;
-
-                        Console.Write("Enter your password: ");
-                        string password = Console.ReadLine();
-                        if (password == "q") break;
-                        var existingUser = db.Users.FirstOrDefault(u => u.UserName == username);
-
-                        if(existingUser != null)
+                        while (true)
                         {
-                            Console.WriteLine("The user allready exists. try with a different username");
-                            Console.ReadKey(true);
-                            continue;
-                        }
-                        else
-                        {
-                            User user = new User
+                            Console.WriteLine("Press 'q' to quit");
+                            Console.Write("Enter your Username: ");
+                            string username = Console.ReadLine();
+                            if (username == "q") break;
+
+                            Console.Write("Enter your password: ");
+                            string password = Console.ReadLine();
+                            if (password == "q") break;
+                            var existingUser = db.Users.FirstOrDefault(u => u.UserName == username);
+
+                            if (existingUser != null)
                             {
-                                UserName = username,
-                                Password = password,
-                                IsAdmin = false
-                            };
-                            db.Users.Add(user);
-                            db.SaveChanges();
-                            Console.WriteLine("user " + username + " has bneen registered.");
-                            Console.ReadKey(true);
-                            return user;
+                                Console.WriteLine("The user allready exists. try with a different username");
+                                Console.ReadKey(true);
+                                continue;
+                            }
+                            else
+                            {
+                                User user = new User
+                                {
+                                    UserName = username,
+                                    Password = password,
+                                    IsAdmin = false
+                                };
+                                db.Users.Add(user);
+                                db.SaveChanges();
+                                Console.WriteLine("user " + username + " has bneen registered.");
+                                Console.ReadKey(true);
+                                return user;
+                            }
                         }
-
+                        break;
                     }
                 }
                 return null;
