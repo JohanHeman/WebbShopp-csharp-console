@@ -198,6 +198,8 @@ namespace Webbshop.Queries
 
                 ConsoleKeyInfo key = Console.ReadKey(true);
 
+                Payment? createdPayment = null;
+
                 if (int.TryParse(key.KeyChar.ToString(), out int input))
                 {
                     switch (input)
@@ -209,7 +211,7 @@ namespace Webbshop.Queries
                             {
                                 db.Payments.Add(creditPayment);
                                 CartQueries.EmptyCart(db, cart.Id);
-                                //db.SaveChanges();
+                                createdPayment = creditPayment;
                             }
                             else
                             {
@@ -225,6 +227,7 @@ namespace Webbshop.Queries
                             CartQueries.EmptyCart(db, cart.Id);
                             Console.WriteLine("The user is putting in Bank Id information...");
                             Thread.Sleep(1000);
+                            createdPayment = klarnaPayment;
                             break;
                     }
                 }
@@ -232,6 +235,19 @@ namespace Webbshop.Queries
 
 
                 db.SaveChanges();
+
+                if(createdPayment != null)
+                {
+                    var log = new ModelsMDB.PaymentLog
+                    {
+                        PaymentId = createdPayment.Id,
+                        Amount = createdPayment.Amount,
+                        CustomerId = customer.Id,
+                        CustomerName = customer.Name,
+                        LoggedAt = DateTime.UtcNow
+                    };
+                    MongoQueries.InsertPaymentLog(log);
+                }
 
                 Console.WriteLine($"Thank you for your purchase {customer.Name}");
                 Console.ReadKey();
