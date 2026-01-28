@@ -16,7 +16,7 @@ namespace Webbshop
 {
     internal class Helpers
     {
-        public static List<string> EnumsToLists(Type e)
+        public static List<string> EnumsToLists(Type e) 
         {
             List<string> theList = new List<string>();
 
@@ -29,8 +29,6 @@ namespace Webbshop
             
             foreach ( var value in enumValues )
             {
-                string name = value.ToString().Replace("_", " ");
-
                 theList.Add((int)value + ": " + value.ToString());
             }
             return theList;   

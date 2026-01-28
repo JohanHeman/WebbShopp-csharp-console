@@ -124,6 +124,12 @@ namespace Webbshop.Queries
                 {
                     return customer;
                 }
+                if (string.IsNullOrWhiteSpace(name))
+                {
+                    Console.WriteLine("Name cannot be empty. Please try again.");
+                    Console.ReadKey(true);
+                    continue;
+                }
                 try
                 {
                     customer.Name = name;
@@ -152,6 +158,12 @@ namespace Webbshop.Queries
                 {
                     return customer;
                 }
+                if (string.IsNullOrWhiteSpace(num))
+                {
+                    Console.WriteLine("Phone number cannot be empty. Please try again.");
+                    Console.ReadKey(true);
+                    continue;
+                }
                 try
                 {
                     customer.PhoneNumber = num;
@@ -179,6 +191,12 @@ namespace Webbshop.Queries
                 if (email.Equals("Q", StringComparison.OrdinalIgnoreCase))
                 {
                     return customer;
+                }
+                if (string.IsNullOrWhiteSpace(email))
+                {
+                    Console.WriteLine("Email cannot be empty. Please try again.");
+                    Console.ReadKey(true);
+                    continue;
                 }
                 try
                 {
@@ -219,6 +237,12 @@ namespace Webbshop.Queries
                         Console.ReadKey(true);
                         return customer;
                     }
+                    else
+                    {
+                        Console.WriteLine("Invalid age. Please enter a valid number or 'Q'.");
+                        Console.ReadKey(true);
+                        continue;
+                    }
                 }
                 catch (DbUpdateException ex)
                 {
@@ -232,28 +256,42 @@ namespace Webbshop.Queries
         {
             Address address = new Address();
 
-
-            Console.WriteLine("What do you want to update? ");
-            Console.WriteLine("1. Country / city");
-            Console.WriteLine("2. street");
-
-            ConsoleKeyInfo key = Console.ReadKey(true);
-            char inputChar = char.ToUpper(key.KeyChar);
-            if (inputChar == 'Q') return customer;
-
-            if (int.TryParse(inputChar.ToString(), out int input))
+            while (true)
             {
-                switch (input)
+                Console.Clear();
+                Console.WriteLine("What do you want to update? ");
+                Console.WriteLine("1. Country / city");
+                Console.WriteLine("2. street");
+                Console.WriteLine("Q. Go back");
+
+                ConsoleKeyInfo key = Console.ReadKey(true);
+                char inputChar = char.ToUpper(key.KeyChar);
+
+                if (inputChar == 'Q') return customer;
+
+                if (int.TryParse(inputChar.ToString(), out int input))
                 {
-                    case 1:
-                        ChangeCountry(customer, db);
-                        break;
-                    case 2:
-                        ChangeStreet(customer, db);
-                        break;
+                    switch (input)
+                    {
+                        case 1:
+                            ChangeCountry(customer, db);
+                            return customer; // Return after change to go back to previous menu
+                        case 2:
+                            ChangeStreet(customer, db);
+                            return customer; // Return after change to go back to previous menu
+                        default:
+                            Console.WriteLine("Invalid option. Please enter 1, 2, or Q. Press any key to try again.");
+                            Console.ReadKey(true);
+                            continue;
+                    }
+                }
+                else
+                {
+                    Console.WriteLine("invalid input. Please enter 1, 2, or Q. Press any key to try again.");
+                    Console.ReadKey(true);
+                    continue;
                 }
             }
-            return customer;
         }
 
         public static Customer ChangeCountry(Customer customer, MyAppContext db) // change country on a customer or add a new country (Also handles if a customer has multiple addresses)
@@ -461,8 +499,20 @@ namespace Webbshop.Queries
 
             while(true)
             {
-                Console.WriteLine("Enter the new address name");
+                Console.WriteLine("Enter the new address name (or 'Q' to quit)");
                 string name = Console.ReadLine();
+
+                if (name.Equals("Q", StringComparison.OrdinalIgnoreCase))
+                {
+                    return customer;
+                }
+
+                if (string.IsNullOrWhiteSpace(name))
+                {
+                    Console.WriteLine("Street name cannot be empty. Please try again.");
+                    Console.ReadKey(true);
+                    continue;
+                }
 
                 address.Street = name;
                 db.SaveChanges();

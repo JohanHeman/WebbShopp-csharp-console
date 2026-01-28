@@ -323,8 +323,16 @@ namespace Webbshop.Queries
             while (true)
             {
                 window.Draw();
-                Console.Write("Choose the new supplier for the book: press any key to quit");
-                if (int.TryParse(Console.ReadLine(), out int input))
+                Console.Write("Choose the new supplier for the book: press 'q' to quit");
+                string? answer = Console.ReadLine();
+
+                if (answer == "q")
+                {
+                    Console.Clear();
+                    return;
+                }
+
+                if (int.TryParse(answer, out int input))
                 {
                     if (suppliers.Any(s => s.Id == input))
                     {
@@ -340,9 +348,21 @@ namespace Webbshop.Queries
                         {
                             Console.WriteLine("Something went wrong");
                             Console.WriteLine(ex.StackTrace);
-                            break;
+                            continue; // Continue instead of break on exception to re-prompt
                         }
                     }
+                    else
+                    {
+                        Console.WriteLine("No supplier with that ID. Please try again.");
+                        Console.ReadKey(true);
+                        continue;
+                    }
+                }
+                else
+                {
+                    Console.WriteLine("Invalid input. Please enter a number or 'q'.");
+                    Console.ReadKey(true);
+                    continue;
                 }
             }
         }
@@ -408,9 +428,16 @@ namespace Webbshop.Queries
 
             while (true)
             {
-                Console.WriteLine("What would you like to change it too? ");
+                Console.WriteLine("What would you like to change it too? (press 'q' to quit)");
+                string? answer = Console.ReadLine();
 
-                if (decimal.TryParse(Console.ReadLine(), out decimal price))
+                if (answer == "q")
+                {
+                    Console.Clear();
+                    return;
+                }
+
+                if (decimal.TryParse(answer, out decimal price))
                 {
                     book.Price = price;
                     await db.SaveChangesAsync();
@@ -420,7 +447,7 @@ namespace Webbshop.Queries
                 }
                 else
                 {
-                    Console.WriteLine("invalid input");
+                    Console.WriteLine("Invalid input. Please enter a valid decimal number or 'q'.");
                     continue;
                 }
             }
@@ -459,6 +486,18 @@ namespace Webbshop.Queries
                         Console.ReadKey(true);
                         break;
                     }
+                    else
+                    {
+                        Console.WriteLine("No category found with that Id. Please try again.");
+                        Console.ReadKey(true);
+                        continue;
+                    }
+                }
+                else
+                {
+                    Console.WriteLine("Invalid input. Please enter a number or 'q'.");
+                    Console.ReadKey(true);
+                    continue;
                 }
             }
         }
@@ -560,52 +599,72 @@ namespace Webbshop.Queries
             try
             {
                 var book = await db.Products.FirstOrDefaultAsync(b => b.Id == id);
-
-                List<string> options = Helpers.EnumsToLists(typeof(Enums.adminProductEnums));
-
-                var window = new Window("Options", 2, 0, options);
-                window.Draw();
-                Console.WriteLine("What do you want to change for the book? ");
-                ConsoleKeyInfo key = Console.ReadKey(true);
-
-                if (int.TryParse(key.KeyChar.ToString(), out int input))
+                if (book == null)
                 {
-                    if(book != null)
+                    Console.WriteLine("The book cannot be found.");
+                    Console.ReadKey(true);
+                    return;
+                }
+
+                while (true)
+                {
+                    List<string> options = Helpers.EnumsToLists(typeof(Enums.adminProductEnums));
+                    var window = new Window("Options", 2, 0, options);
+                    Console.Clear(); 
+                    window.Draw();
+                    Console.WriteLine("What do you want to change for the book? (Press 'q' to go back)");
+                    ConsoleKeyInfo key = Console.ReadKey(true);
+
+                    if (key.KeyChar == 'q')
                     {
-                        switch ((Enums.adminProductEnums)input)
+                        Console.Clear();
+                        return;
+                    }
+
+                    if (int.TryParse(key.KeyChar.ToString(), out int input))
+                    {
+                        if (Enum.IsDefined(typeof(Enums.adminProductEnums), input))
                         {
-                            case Enums.adminProductEnums.name:
-                                await ChangeName(db, book);
-                                break;
-                            case Enums.adminProductEnums.info:
-                                await ChangeInfo(db, book);
-                                break;
-                            case Enums.adminProductEnums.change_supplier:
-                                await ChangeSupplierBook(db, book);
-                                break;
-                            case Enums.adminProductEnums.instock:
-                                await InStockProduct(db, book);
-                                break;
-                            case Enums.adminProductEnums.price:
-                                await ChangePriceProduct(db, book);
-                                break;
-                            case Enums.adminProductEnums.category:
-                                await ChangeCategoryProduct(db, book);
-                                break;
-                            case Enums.adminProductEnums.Delete_product:
-                                DeleteProduct(db, id);
-                                break;
-                            case Enums.adminProductEnums.Is_displayed:
-                                await FrontPageProduct(db, book);
-                                break;
+                            switch ((Enums.adminProductEnums)input)
+                            {
+                                case Enums.adminProductEnums.name:
+                                    await ChangeName(db, book);
+                                    break;
+                                case Enums.adminProductEnums.info:
+                                    await ChangeInfo(db, book);
+                                    break;
+                                case Enums.adminProductEnums.change_supplier:
+                                    await ChangeSupplierBook(db, book);
+                                    break;
+                                case Enums.adminProductEnums.instock:
+                                    await InStockProduct(db, book);
+                                    break;
+                                case Enums.adminProductEnums.price:
+                                    await ChangePriceProduct(db, book);
+                                    break;
+                                case Enums.adminProductEnums.category:
+                                    await ChangeCategoryProduct(db, book);
+                                    break;
+                                case Enums.adminProductEnums.Delete_product:
+                                    DeleteProduct(db, id);
+                                    break;
+                                case Enums.adminProductEnums.Is_displayed:
+                                    await FrontPageProduct(db, book);
+                                    break;
+                            }
+                        }
+                        else
+                        {
+                            Console.WriteLine("Invalid option, please try again.");
+                            Console.ReadKey(true);
                         }
                     }
                     else
                     {
-                        Console.WriteLine("The book cant be null");
+                        Console.WriteLine("invalid input. Please enter a number from the options or 'q'.");
+                        Console.ReadKey(true);
                     }
                 }
-
             }
             catch (DbUpdateException ex)
             {
@@ -971,6 +1030,7 @@ namespace Webbshop.Queries
                                 book.IsDisplayed = true;
                                 await db.SaveChangesAsync();
                                 Console.WriteLine("The book has been updated.");
+                                Console.ReadKey(true);
                                 break;
                             }
                             Console.WriteLine("There are too many books displayed on the frontpage. ");
