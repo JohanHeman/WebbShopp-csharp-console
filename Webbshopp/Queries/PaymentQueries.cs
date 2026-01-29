@@ -244,7 +244,7 @@ namespace Webbshop.Queries
                         Amount = createdPayment.Amount,
                         CustomerId = customer.Id,
                         CustomerName = customer.Name,
-                        LoggedAt = DateTime.UtcNow
+                        LoggedAt = DateTime.Now
                     };
                     MongoQueries.InsertPaymentLog(log);
                 }
