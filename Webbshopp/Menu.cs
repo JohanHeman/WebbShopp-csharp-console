@@ -80,7 +80,7 @@ namespace Webbshop
                                 case Enums.HomeEnums.Admin_menu:
                                     if(user != null && user.IsAdmin)
                                     {
-                                    await AdminMenu();
+                                    await AdminMenu(user);
                                     continue;
                                     }
                                     else
@@ -176,7 +176,7 @@ namespace Webbshop
 
         }
 
-        public static async Task AdminMenu()
+        public static async Task AdminMenu(User currentUser)
         {
             while(true)
             {
@@ -208,10 +208,10 @@ namespace Webbshop
                             await AdminCategory.AddProduct();
                             break;
                         case Enums.adminEnums.Statistics:
-                            StatisticQuerries.ShowStatistics();
+                            StatisticQueries.ShowStatistics();
                             break;
                         case Enums.adminEnums.Admins:
-                            AdminAcessFunction.AdminAcess();
+                            AdminAcessFunction.AdminAcess(currentUser);
                             break;
 
 

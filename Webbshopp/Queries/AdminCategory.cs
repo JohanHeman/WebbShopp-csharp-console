@@ -682,7 +682,7 @@ namespace Webbshop.Queries
 
                 if (book != null)
                 {
-                    List<string> bookWindow = new List<string> { book.Information, book.Price.ToString() + "$" + " In stock: " + book.InStock + " 'c' to change product information. Any oyher key to go back" };
+                    List<string> bookWindow = new List<string> { book.Information, book.Price.ToString() + "$" + " In stock: " + book.InStock + " 'c' to change product information. Any other key to go back" };
                     var window = new Window(book.Name, 1, 1, bookWindow);
                     window.Draw();
                     ConsoleKeyInfo key = Console.ReadKey(true);
@@ -928,10 +928,11 @@ namespace Webbshop.Queries
                                 db.Authors.Add(author);
                                 book.Author = author;
                                 await db.SaveChangesAsync();
+                                continue;
                             }
                         }
 
-                        
+
                         if (int.TryParse(answer, out int id))
                         {
                             var author = await db.Authors.FirstOrDefaultAsync(a => a.Id == id);
@@ -947,10 +948,12 @@ namespace Webbshop.Queries
                                 continue;
                             }
                         }
-                        
-                        Console.WriteLine("must be a valid id");
-                        Console.ReadKey(true);
-                        continue;
+                        else
+                        {
+                            Console.WriteLine("must be a valid id");
+                            Console.ReadKey(true);
+                            continue;
+                        }
                     }
 
                     book.IsDisplayed = false;

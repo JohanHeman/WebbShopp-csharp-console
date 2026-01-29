@@ -7,13 +7,14 @@ using System.Runtime.InteropServices.Marshalling;
 using System.Text;
 using System.Threading.Tasks;
 using Webbshop.Connections;
+using Webbshop.Models;
 
 namespace Webbshop.Queries
 {
     internal class AdminAcessFunction
     {
         // just a function that handles the adminacess for users.
-        public static void AdminAcess()
+        public static void AdminAcess(User currentUser)
         {
             using (var db = new MyAppContext())
             {
@@ -52,6 +53,12 @@ namespace Webbshop.Queries
 
                             if(inputChar == 'D')
                             {
+                                if (selectedUser.Id == currentUser.Id)
+                                {
+                                    Console.WriteLine("You cannot delete your own admin account!");
+                                    Console.ReadKey(true);
+                                    break;
+                                }
                                 try
                                 {
                                     db.Users.Remove(selectedUser);
@@ -67,6 +74,12 @@ namespace Webbshop.Queries
                             }
                             else if(inputChar == 'A')
                             {
+                                if (selectedUser.Id == currentUser.Id)
+                                {
+                                    Console.WriteLine("You cannot change your own admin access!");
+                                    Console.ReadKey(true);
+                                    break;
+                                }
                                 if(selectedUser.IsAdmin)
                                 {
                                     selectedUser.IsAdmin = false;
