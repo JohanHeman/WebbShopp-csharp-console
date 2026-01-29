@@ -65,7 +65,7 @@ namespace Webbshop.Queries
                     db.SaveChanges();
                     Console.Clear();
                     Console.WriteLine("Succesfully added item to cart");
-                    Console.ReadLine();
+                    Console.ReadKey(true);
                 }
                 else
                 {
@@ -84,7 +84,7 @@ namespace Webbshop.Queries
                     db.SaveChanges();
                     Console.Clear();
                     Console.WriteLine("Succesfully added item to cart");
-                    Console.ReadLine();
+                    Console.ReadKey(true);
                     
                 }
             }
@@ -164,7 +164,6 @@ namespace Webbshop.Queries
                             }
                         }
                     }
-                    Console.ReadKey(true);
                 }
             }
 
