@@ -210,7 +210,7 @@ namespace Webbshop
                         case Enums.adminEnums.Statistics:
                             StatisticQueries.ShowStatistics();
                             break;
-                        case Enums.adminEnums.Admins:
+                        case Enums.adminEnums.Admin_access:
                             AdminAcessFunction.AdminAcess(currentUser);
                             break;
 

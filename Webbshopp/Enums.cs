@@ -29,7 +29,7 @@ namespace Webbshop
             Customer_management,
             Statistics,
             supplier,
-            Admins,
+            Admin_access,
             Home
         }
 

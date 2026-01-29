@@ -512,6 +512,7 @@ namespace Webbshop.Queries
                 db.SaveChanges();
                 Console.WriteLine("Successfully deleted product.");
                 Console.ReadKey(true);
+                return;
             }
             catch (DbUpdateException ex)
             {
@@ -647,7 +648,7 @@ namespace Webbshop.Queries
                                     break;
                                 case Enums.adminProductEnums.Delete_product:
                                     DeleteProduct(db, id);
-                                    break;
+                                    return;
                                 case Enums.adminProductEnums.Is_displayed:
                                     await FrontPageProduct(db, book);
                                     break;
