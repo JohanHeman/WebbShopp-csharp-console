@@ -319,6 +319,7 @@ namespace Webbshop
             if (!db.Customers.Any(c => c.Id == customer.Id))
                 db.Customers.Add(customer);
 
+            db.SaveChanges();
 
             MongoQueries.InsertActivityLog(new ModelsMDB.ActivityLog
             {
@@ -326,8 +327,6 @@ namespace Webbshop
                 Date = DateTime.Now,
                 Activity = "New Customer"
             });
-
-            db.SaveChanges();
 
             return customer;
         }
