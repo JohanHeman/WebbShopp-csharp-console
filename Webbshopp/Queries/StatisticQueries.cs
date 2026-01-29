@@ -11,7 +11,7 @@ using WindowDemo;
 
 namespace Webbshop.Queries
 {
-    internal class StatisticQuerries
+    internal class StatisticQueries
     {
 
         public static void ShowStatistics() 
@@ -38,6 +38,10 @@ namespace Webbshop.Queries
                     case Enums.adminSatistics.biggest_customer_groups:
                         CustomerGroups();
                         break;
+                    case Enums.adminSatistics.Best_selling_categories:
+                        BestSellingCategories();
+                        break;
+
 
                 }
             }
@@ -175,6 +179,29 @@ namespace Webbshop.Queries
                         }
                     }
                 }
+            }
+        }
+
+
+        public static void BestSellingCategories()
+        {
+            using(var db = new MyAppContext())
+            {
+                var categories = db.Categories.GroupBy(c => c.Name).Select(g => new
+                {
+                    Name = g.Key,
+                    SoldCount = g.SelectMany(c => c.Products).SelectMany(p => p.CheckoutProducts).Count()
+                }).OrderByDescending(c => c.SoldCount).ToList();
+
+                List<string> list = new();
+                foreach (var item in categories)
+                {
+                    list.Add(item.Name + ": " + item.SoldCount.ToString());
+                }
+                var window = new Window("categories", 0, 2, list);
+                window.Draw();
+                Console.ReadKey(true);
+                return;
             }
         }
     }

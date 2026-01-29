@@ -64,7 +64,8 @@ namespace Webbshop
         {
             Most_sold_products = 1,
             sold_past_hour,
-            biggest_customer_groups
+            biggest_customer_groups,
+            Best_selling_categories
         }
 
         public enum ChangeCustomerInfo
