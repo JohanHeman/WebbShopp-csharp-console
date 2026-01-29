@@ -156,7 +156,7 @@ namespace Webbshop
                                     };
                                     db.Users.Add(user);
                                     db.SaveChanges();
-                                    Console.WriteLine("user " + username + " has bneen registered.");
+                                    Console.WriteLine("user " + username + " has been registered.");
                                     Console.ReadKey(true);
                                     MongoQueries.InsertUserLog(new ModelsMDB.UserLog
                                     {
