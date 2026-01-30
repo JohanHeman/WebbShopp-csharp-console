@@ -31,14 +31,14 @@ namespace Webbshop.Queries
                     Console.Clear();
                     window.Draw();
                     Console.WriteLine("Press 'd' to delete 'a' to add a category or 'q' to quit");
-                    ConsoleKeyInfo key = Console.ReadKey(true);
+                    string answer = Console.ReadLine().ToUpper();
 
-                    switch (key.KeyChar)
+                    switch (answer)
                     {
-                        case 'q':
+                        case "Q":
                             Console.Clear();
                             return;
-                        case 'd':
+                        case "D":
                             var catToRemove = await GetCatToRemove(db);
                             if (catToRemove != null)
                             {
@@ -46,12 +46,12 @@ namespace Webbshop.Queries
                                 continue;
                             }
                             break;
-                        case 'a':
+                        case "A":
                             await AddCategory(db);
                             continue;
 
                         default:
-                            if (int.TryParse(key.KeyChar.ToString(), out int input))
+                            if (int.TryParse(answer, out int input))
                             {
                                 if (categories.Any(c => c.Id == input))
                                 {
